@@ -182,7 +182,7 @@ img { display: block; max-width: 100%; }
 .confirmation dl div { display: grid; grid-template-columns: 140px 1fr; padding: 15px 0; border-bottom: 1px solid var(--line); }
 .confirmation dt { color: var(--paper-muted); font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; }
 .confirmation dd { margin: 0; font-family: Georgia, serif; }
-.whatsapp-action { display: flex; justify-content: space-between; max-width: 390px; padding: 18px 20px; background: var(--paper); color: var(--ink); font-size: .68rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; transition: background .2s; }
+.whatsapp-action { display: flex; width: 100%; max-width: 390px; justify-content: space-between; padding: 18px 20px; border: 0; border-radius: 0; background: var(--paper); color: var(--ink); font-size: .68rem; font-weight: 700; letter-spacing: .1em; text-align: left; text-transform: uppercase; cursor: pointer; transition: background .2s; }
 .whatsapp-action:hover { background: var(--brass); }
 .restart { display: block; margin-top: 20px; padding: 0 0 5px; border: 0; border-bottom: 1px solid var(--line); background: transparent; color: var(--paper-muted); font-size: .72rem; cursor: pointer; }
 .booking-summary { display: grid; grid-template-columns: 80px 1fr auto auto; gap: 18px; align-items: center; padding: 22px 0; color: var(--paper-muted); font-size: .7rem; }
@@ -198,6 +198,7 @@ img { display: block; max-width: 100%; }
 .location-info .kicker { color: var(--brass-dark); }
 .location h2 { margin: 22px 0 45px; font-size: clamp(3.3rem, 5.3vw, 6.3rem); }
 .location address { color: #5b554c; font-family: Georgia, serif; font-size: 1.1rem; font-style: normal; line-height: 1.7; }
+.location address small { display: block; color: #81786c; font-family: Arial, Helvetica, sans-serif; font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; }
 .directions { display: inline-block; margin-top: 24px; padding-bottom: 7px; border-bottom: 1px solid var(--brass-dark); color: var(--brass-dark); font-size: .7rem; letter-spacing: .13em; text-transform: uppercase; }
 .hours { margin-top: 65px; border-top: 1px solid #b9b0a3; }
 .hours div { display: flex; justify-content: space-between; gap: 18px; padding: 15px 0; border-bottom: 1px solid #c9c0b4; font-size: .72rem; }

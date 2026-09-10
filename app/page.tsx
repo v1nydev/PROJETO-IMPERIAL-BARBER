@@ -102,10 +102,6 @@ export default function Home() {
   const service = services.find((item) => item.id === serviceId) ?? services[0];
   const barber = barbers.find((item) => item.id === barberId) ?? barbers[0];
   const day = days.find((item) => item.id === dayId) ?? days[0];
-  const whatsappText = encodeURIComponent(
-    `Olá, Imperial Barber. Quero confirmar meu ${service.name} com ${barber.name}, ${day?.label} às ${time}.`,
-  );
-
   useEffect(() => {
     const context = (document as Document & { modelContext?: ModelContext }).modelContext;
     if (!context?.registerTool) return;
@@ -168,6 +164,12 @@ export default function Home() {
     setStep(1);
   }
 
+  function sendMockReminder() {
+    toast.success("Lembrete simulado", {
+      description: `${service.name} · ${day?.label}, ${time}. Em produção, conecte aqui o WhatsApp da barbearia.`,
+    });
+  }
+
   return (
     <main>
       <header className="site-header">
@@ -204,7 +206,7 @@ export default function Home() {
 
         <aside className="hero-note" aria-label="Informações da barbearia">
           <span>Desde 2012</span>
-          <p>Rua Oscar Freire, 720<br />São Paulo — SP</p>
+          <p>Alameda Imperial, 120<br />Jardins — São Paulo</p>
         </aside>
       </section>
 
@@ -272,8 +274,8 @@ export default function Home() {
           <h2>Escolha sem<br />intermediários.</h2>
           <p>Quatro decisões, menos de um minuto. A confirmação chega pronta para o WhatsApp.</p>
           <div className="booking-contact">
-            <span>Dúvidas?</span>
-            <a href="tel:+551130821912">(11) 3082–1912</a>
+            <span>Conheça a casa</span>
+            <a href="#localizacao">Ver endereço</a>
           </div>
         </header>
 
@@ -360,7 +362,7 @@ export default function Home() {
                   <div><dt>Quando</dt><dd>{day?.label}, {time}</dd></div>
                   <div><dt>Total</dt><dd>{money(service.price)}</dd></div>
                 </dl>
-                <a className="whatsapp-action" href={`https://wa.me/551130821912?text=${whatsappText}`} target="_blank" rel="noreferrer">Receber lembrete no WhatsApp <span>↗</span></a>
+                <button type="button" className="whatsapp-action" onClick={sendMockReminder}>Simular lembrete no WhatsApp <span>↗</span></button>
                 <button type="button" className="restart" onClick={restartBooking}>Fazer outro agendamento</button>
               </div>
             )}
@@ -378,15 +380,15 @@ export default function Home() {
 
       <section className="location" id="localizacao">
         <div className="location-map">
-          <iframe title="Mapa da Imperial Barber" src="https://www.google.com/maps?q=Rua%20Oscar%20Freire%20720%20Sao%20Paulo&output=embed" loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
+          <iframe title="Mapa da região dos Jardins, em São Paulo" src="https://www.google.com/maps?q=Jardins%20Sao%20Paulo&output=embed" loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
           <span>23°33′43″S / 46°40′11″W</span>
         </div>
         <div className="location-info">
           <div className="section-index">05 / Visite</div>
           <p className="kicker">Jardins, São Paulo</p>
           <h2>Um intervalo<br />bem localizado.</h2>
-          <address>Rua Oscar Freire, 720<br />Cerqueira César — São Paulo</address>
-          <a className="directions" href="https://maps.google.com/?q=Rua+Oscar+Freire+720+Sao+Paulo" target="_blank" rel="noreferrer">Traçar rota ↗</a>
+          <address>Alameda Imperial, 120<br />Jardins — São Paulo <small>(endereço conceitual)</small></address>
+          <a className="directions" href="https://maps.google.com/?q=Jardins+Sao+Paulo" target="_blank" rel="noreferrer">Ver região ↗</a>
           <div className="hours">
             <div><span>Terça — Sexta</span><strong>09:00 — 20:00</strong></div>
             <div><span>Sábado</span><strong>09:00 — 18:00</strong></div>
