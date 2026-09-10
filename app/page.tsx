@@ -90,6 +90,19 @@ function getNextDays() {
   });
 }
 
+function ImperialMonogram({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 96 96" fill="none" aria-hidden="true">
+      <path className="monogram-frame" d="M48 3 84 19v58L48 93 12 77V19L48 3Z" />
+      <path className="monogram-orbit" d="M48 12c19.88 0 36 16.12 36 36S67.88 84 48 84 12 67.88 12 48 28.12 12 48 12Z" />
+      <path className="monogram-letter" d="M31 27h16M39 27v42M31 69h16" />
+      <path className="monogram-letter" d="M51 27v42M51 28h7.5c8 0 12.5 4.2 12.5 10.1 0 5.7-4.5 9.9-12.5 9.9H51m7.5 0c9 0 14 4.3 14 10.5S67.5 69 58.5 69H51" />
+      <path className="monogram-blade" d="M23 75 74 21M65 25l8-4-3 9" />
+      <path className="monogram-crown" d="M38 15 43 9l5 6 5-6 5 6" />
+    </svg>
+  );
+}
+
 export default function Home() {
   const days = useMemo(getNextDays, []);
   const [serviceId, setServiceId] = useState(services[0].id);
@@ -102,6 +115,59 @@ export default function Home() {
   const service = services.find((item) => item.id === serviceId) ?? services[0];
   const barber = barbers.find((item) => item.id === barberId) ?? barbers[0];
   const day = days.find((item) => item.id === dayId) ?? days[0];
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const animated = Array.from(document.querySelectorAll<HTMLElement>("[data-scroll]"));
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let frame = 0;
+
+    const update = () => {
+      frame = 0;
+      const scrollY = window.scrollY;
+      const viewport = window.innerHeight;
+      const pageRange = Math.max(document.documentElement.scrollHeight - viewport, 1);
+      const pageProgress = Math.min(Math.max(scrollY / pageRange, 0), 1);
+      const heroProgress = Math.min(Math.max(scrollY / Math.max(viewport * 0.9, 1), 0), 1);
+
+      root.style.setProperty("--page-progress", pageProgress.toFixed(4));
+      root.style.setProperty("--hero-shift", `${Math.round(heroProgress * 110)}px`);
+      root.style.setProperty("--hero-shift-mobile", `${Math.round(heroProgress * 38)}px`);
+      root.style.setProperty("--hero-zoom", (1.035 + heroProgress * 0.12).toFixed(4));
+      root.style.setProperty("--hero-fade", (1 - heroProgress * 0.68).toFixed(4));
+      document.body.toggleAttribute("data-scrolled", scrollY > 72);
+
+      animated.forEach((element) => {
+        const rect = element.getBoundingClientRect();
+        const raw = (viewport - rect.top) / Math.max(viewport + rect.height * 0.5, 1);
+        const progress = reducedMotion.matches ? 1 : Math.min(Math.max(raw, 0), 1);
+        element.style.setProperty("--scroll-p", progress.toFixed(4));
+        element.style.setProperty("--scroll-offset", `${Math.round((1 - progress) * 96)}px`);
+        element.style.setProperty("--scroll-offset-soft", `${Math.round((1 - progress) * 43)}px`);
+        element.style.setProperty("--scroll-offset-mini", `${Math.round((1 - progress) * 27)}px`);
+        element.style.setProperty("--scroll-parallax", `${Math.round((progress - 0.5) * -110)}px`);
+        element.style.setProperty("--scroll-parallax-soft", `${Math.round((progress - 0.5) * -39)}px`);
+        element.style.setProperty("--scroll-opacity", (0.35 + progress * 0.65).toFixed(4));
+        element.style.setProperty("--scroll-wipe", `${Math.max(0, (1 - progress) * 100).toFixed(2)}%`);
+        element.style.setProperty("--scroll-scale", (1.12 - progress * 0.12).toFixed(4));
+        element.style.setProperty("--marquee-x", `${Math.round((0.5 - progress) * 38)}vw`);
+      });
+    };
+
+    const schedule = () => {
+      if (!frame) frame = window.requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    return () => {
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, []);
+
   useEffect(() => {
     const context = (document as Document & { modelContext?: ModelContext }).modelContext;
     if (!context?.registerTool) return;
@@ -171,11 +237,14 @@ export default function Home() {
   }
 
   return (
-    <main>
+    <main className="site-shell">
+      <aside className="scroll-meter" aria-hidden="true">
+        <span>IB</span><i><b /></i><span>MMXII</span>
+      </aside>
       <header className="site-header">
         <a className="brand" href="#inicio" aria-label="Imperial Barber — início">
-          <span className="brand-mark">IB</span>
-          <span>Imperial Barber</span>
+          <span className="brand-mark"><ImperialMonogram /></span>
+          <span className="brand-copy"><strong>Imperial</strong><small>Barber · São Paulo</small></span>
         </a>
         <nav aria-label="Navegação principal">
           <a href="#servicos">Serviços</a>
@@ -188,7 +257,7 @@ export default function Home() {
       <section className="hero" id="inicio">
         <div className="hero-copy">
           <p className="eyebrow">Barbearia &amp; alfaiataria do gesto</p>
-          <h1>Precisão é<br />uma forma<br /><em>de presença.</em></h1>
+          <h1><span>Precisão é</span><br /><span>uma forma</span><br /><em>de presença.</em></h1>
           <p className="hero-intro">
             Cortes clássicos, barba à toalha quente e um tempo reservado
             para você — sem pressa, sem excesso.
@@ -201,6 +270,7 @@ export default function Home() {
 
         <figure className="hero-portrait">
           <img src="/images/imperial-hero.png" alt="Mestre barbeiro realizando um corte de precisão" />
+          <div className="hero-seal"><ImperialMonogram /><span>Ofício<br />desde 2012</span></div>
           <figcaption><span>01</span> O ofício, elevado ao ritual.</figcaption>
         </figure>
 
@@ -210,33 +280,37 @@ export default function Home() {
         </aside>
       </section>
 
-      <section className="ritual section-paper" id="ritual">
+      <div className="marquee" data-scroll="marquee" aria-hidden="true">
+        <div>TRADIÇÃO&nbsp; ◆ &nbsp;PRECISÃO&nbsp; ◆ &nbsp;PRESENÇA&nbsp; ◆ &nbsp;RITUAL&nbsp; ◆ &nbsp;TRADIÇÃO&nbsp; ◆ &nbsp;PRECISÃO&nbsp; ◆ &nbsp;PRESENÇA</div>
+      </div>
+
+      <section className="ritual section-paper" id="ritual" data-scroll="section">
         <div className="section-index">01 / O ritual</div>
-        <div className="ritual-lead">
+        <div className="ritual-lead" data-scroll="title">
           <p className="kicker">Antes do espelho, a escuta.</p>
           <h2>Há coisas que<br />não se apressam.</h2>
         </div>
-        <div className="ritual-story">
+        <div className="ritual-story" data-scroll="copy">
           <p className="dropcap">O primeiro gesto é entender. O fio, o rosto, a rotina. Depois vêm a toalha quente, a espuma feita à mão e o som exato da tesoura.</p>
           <p>Na Imperial, técnica e hospitalidade dividem a mesma cadeira. Cada atendimento respeita o seu tempo — e devolve a você uma imagem que parece ter estado ali desde sempre.</p>
           <blockquote>“Um bom corte não pede atenção. Ele sustenta presença.”</blockquote>
         </div>
-        <figure className="ritual-image image-reveal">
+        <figure className="ritual-image image-reveal" data-scroll="image">
           <img src="/images/imperial-ritual.png" alt="Preparação da toalha quente e navalha para barboterapia" />
           <figcaption>Preparação / Barboterapia</figcaption>
         </figure>
         <div className="ritual-stat"><strong>14</strong><span>anos aperfeiçoando<br />o mesmo ofício</span></div>
       </section>
 
-      <section className="services" id="servicos">
-        <header className="services-heading">
+      <section className="services" id="servicos" data-scroll="section">
+        <header className="services-heading" data-scroll="title">
           <div className="section-index">02 / Menu da casa</div>
           <h2>Serviços de<br /><em>precisão.</em></h2>
           <p>Valores claros. Tempo reservado. Produtos selecionados para cada fio e pele.</p>
         </header>
         <div className="service-menu" role="list">
           {services.map((item, index) => (
-            <div className="service-row" role="listitem" key={item.id}>
+            <div className="service-row" role="listitem" key={item.id} data-scroll="row">
               <span className="service-number">{String(index + 1).padStart(2, "0")}</span>
               <div><h3>{item.name}</h3><p>{item.description}</p></div>
               <span className="service-duration">{item.duration}</span>
@@ -247,28 +321,28 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="gallery" id="galeria" aria-labelledby="gallery-title">
-        <div className="gallery-title">
+      <section className="gallery" id="galeria" aria-labelledby="gallery-title" data-scroll="section">
+        <div className="gallery-title" data-scroll="title">
           <div className="section-index">03 / Caderno visual</div>
           <h2 id="gallery-title">Matéria,<br />gesto &amp; forma.</h2>
         </div>
-        <figure className="gallery-a image-reveal">
+        <figure className="gallery-a image-reveal" data-scroll="image">
           <img src="/images/imperial-interior.png" alt="Interior da Imperial Barber com cadeiras de couro e espelhos de latão" />
           <figcaption>Ateliê / Jardins</figcaption>
         </figure>
-        <figure className="gallery-b image-reveal">
+        <figure className="gallery-b image-reveal" data-scroll="image">
           <img src="/images/imperial-hero.png" alt="Detalhe de corte masculino feito com tesoura" />
           <figcaption>Tesoura / Forma</figcaption>
         </figure>
-        <figure className="gallery-c image-reveal">
+        <figure className="gallery-c image-reveal" data-scroll="image">
           <img src="/images/imperial-ritual.png" alt="Detalhes do ritual de barba tradicional" />
           <figcaption>Navalha / Ritual</figcaption>
         </figure>
         <p className="gallery-note">Uma seleção do nosso trabalho diário. Sem tendências emprestadas: cada corte nasce do encontro entre traço, textura e rotina.</p>
       </section>
 
-      <section className="booking" id="agenda">
-        <header className="booking-intro">
+      <section className="booking" id="agenda" data-scroll="section">
+        <header className="booking-intro" data-scroll="title">
           <div className="section-index">04 / Reserva</div>
           <p className="kicker">Sua cadeira espera.</p>
           <h2>Escolha sem<br />intermediários.</h2>
@@ -279,7 +353,7 @@ export default function Home() {
           </div>
         </header>
 
-        <div className="booking-app">
+        <div className="booking-app" data-scroll="panel">
           <ol className="step-track" aria-label="Etapas do agendamento">
             {["Serviço", "Especialista", "Horário", "Confirmação"].map((label, index) => (
               <li key={label} className={step === index + 1 ? "active" : step > index + 1 ? "done" : ""}>
@@ -378,12 +452,12 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="location" id="localizacao">
-        <div className="location-map">
+      <section className="location" id="localizacao" data-scroll="section">
+        <div className="location-map" data-scroll="image">
           <iframe title="Mapa da região dos Jardins, em São Paulo" src="https://www.google.com/maps?q=Jardins%20Sao%20Paulo&output=embed" loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
           <span>23°33′43″S / 46°40′11″W</span>
         </div>
-        <div className="location-info">
+        <div className="location-info" data-scroll="title">
           <div className="section-index">05 / Visite</div>
           <p className="kicker">Jardins, São Paulo</p>
           <h2>Um intervalo<br />bem localizado.</h2>
@@ -398,7 +472,7 @@ export default function Home() {
       </section>
 
       <footer className="footer">
-        <a className="brand footer-brand" href="#inicio"><span className="brand-mark">IB</span><span>Imperial Barber</span></a>
+        <a className="brand footer-brand" href="#inicio"><span className="brand-mark footer-emblem"><ImperialMonogram /></span><span className="brand-copy"><strong>Imperial</strong><small>Barber · São Paulo</small></span></a>
         <p>O ofício de cuidar,<br />sem perder a medida.</p>
         <div className="footer-links"><a href="#servicos">Serviços</a><a href="#agenda">Agenda</a><a href="#localizacao">Localização</a><a href="https://instagram.com" target="_blank" rel="noreferrer">Instagram ↗</a></div>
         <div className="footer-bottom"><span>© 2026 Imperial Barber</span><span>São Paulo — Brasil</span><a href="#inicio">Voltar ao topo ↑</a></div>
