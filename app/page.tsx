@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { type MouseEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Toaster } from "@/components/ui/sonner";
@@ -111,6 +111,7 @@ export default function Home() {
   const [time, setTime] = useState("18:30");
   const [step, setStep] = useState(1);
   const [confirmed, setConfirmed] = useState(false);
+  const scrollFrame = useRef<number | null>(null);
 
   const service = services.find((item) => item.id === serviceId) ?? services[0];
   const barber = barbers.find((item) => item.id === barberId) ?? barbers[0];
@@ -148,6 +149,9 @@ export default function Home() {
         element.style.setProperty("--scroll-parallax", `${Math.round((progress - 0.5) * -110)}px`);
         element.style.setProperty("--scroll-parallax-soft", `${Math.round((progress - 0.5) * -39)}px`);
         element.style.setProperty("--scroll-opacity", (0.35 + progress * 0.65).toFixed(4));
+        const imageOpacity = Math.min(Math.max((progress - 0.04) / 0.52, 0), 1);
+        element.style.setProperty("--image-opacity", imageOpacity.toFixed(4));
+        element.style.setProperty("--image-blur", `${((1 - imageOpacity) * 12).toFixed(2)}px`);
         element.style.setProperty("--scroll-wipe", `${Math.max(0, (1 - progress) * 100).toFixed(2)}%`);
         element.style.setProperty("--scroll-scale", (1.12 - progress * 0.12).toFixed(4));
         element.style.setProperty("--marquee-x", `${Math.round((0.5 - progress) * 38)}vw`);
@@ -165,6 +169,7 @@ export default function Home() {
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
       if (frame) window.cancelAnimationFrame(frame);
+      if (scrollFrame.current) window.cancelAnimationFrame(scrollFrame.current);
     };
   }, []);
 
@@ -225,6 +230,43 @@ export default function Home() {
     toast.success("Horário reservado", { description: `${day?.label}, às ${time}, com ${barber.name}.` });
   }
 
+  function smoothScroll(event: MouseEvent<HTMLAnchorElement>, targetId: string) {
+    event.preventDefault();
+    const target = document.getElementById(targetId);
+    if (!target) return;
+
+    if (scrollFrame.current) window.cancelAnimationFrame(scrollFrame.current);
+    const start = window.scrollY;
+    const headerOffset = window.innerWidth <= 680 ? 66 : 72;
+    const end = Math.max(0, start + target.getBoundingClientRect().top - headerOffset);
+    const distance = end - start;
+    const duration = Math.min(1200, Math.max(700, Math.abs(distance) * 0.32));
+    const startedAt = performance.now();
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (reduceMotion) {
+      window.scrollTo(0, end);
+      window.history.pushState(null, "", `#${targetId}`);
+      return;
+    }
+
+    const animate = (now: number) => {
+      const progress = Math.min((now - startedAt) / duration, 1);
+      const eased = progress < 0.5
+        ? 4 * progress * progress * progress
+        : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+      window.scrollTo(0, start + distance * eased);
+      if (progress < 1) {
+        scrollFrame.current = window.requestAnimationFrame(animate);
+      } else {
+        scrollFrame.current = null;
+        window.history.pushState(null, "", `#${targetId}`);
+      }
+    };
+
+    scrollFrame.current = window.requestAnimationFrame(animate);
+  }
+
   function restartBooking() {
     setConfirmed(false);
     setStep(1);
@@ -242,16 +284,16 @@ export default function Home() {
         <span>IB</span><i><b /></i><span>MMXII</span>
       </aside>
       <header className="site-header">
-        <a className="brand" href="#inicio" aria-label="Imperial Barber — início">
+        <a className="brand" href="#inicio" aria-label="Imperial Barber — início" onClick={(event) => smoothScroll(event, "inicio")}>
           <span className="brand-mark"><ImperialMonogram /></span>
           <span className="brand-copy"><strong>Imperial</strong><small>Barber · São Paulo</small></span>
         </a>
         <nav aria-label="Navegação principal">
-          <a href="#servicos">Serviços</a>
-          <a href="#ritual">O ritual</a>
-          <a href="#galeria">Galeria</a>
+          <a href="#servicos" onClick={(event) => smoothScroll(event, "servicos")}>Serviços</a>
+          <a href="#ritual" onClick={(event) => smoothScroll(event, "ritual")}>O ritual</a>
+          <a href="#galeria" onClick={(event) => smoothScroll(event, "galeria")}>Galeria</a>
         </nav>
-        <a className="header-cta" href="#agenda">Reservar horário</a>
+        <a className="header-cta" href="#agenda" onClick={(event) => smoothScroll(event, "agenda")}>Reservar horário</a>
       </header>
 
       <section className="hero" id="inicio">
@@ -263,7 +305,7 @@ export default function Home() {
             para você — sem pressa, sem excesso.
           </p>
           <div className="hero-actions">
-            <a className="primary-action" href="#agenda">Agendar meu ritual <span>↗</span></a>
+            <a className="primary-action" href="#agenda" onClick={(event) => smoothScroll(event, "agenda")}>Agendar meu ritual <span>↗</span></a>
             <span className="availability"><i /> Próximo horário hoje, 18:30</span>
           </div>
         </div>
@@ -317,7 +359,7 @@ export default function Home() {
               <strong>{money(item.price)}</strong>
             </div>
           ))}
-          <a className="menu-link" href="#agenda">Escolher um serviço <span>↓</span></a>
+          <a className="menu-link" href="#agenda" onClick={(event) => smoothScroll(event, "agenda")}>Escolher um serviço <span>↓</span></a>
         </div>
       </section>
 
