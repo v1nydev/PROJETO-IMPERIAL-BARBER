@@ -454,5 +454,6 @@ body[data-scrolled] .site-header { height: 72px; background: rgba(11,11,12,.9); 
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-copy, .hero-portrait img, [data-scroll], [data-scroll] img, .marquee div, .site-shell::before, .scroll-meter b { transform: none !important; opacity: 1 !important; clip-path: none !important; }
+  .marquee div { transform: none !important; }
+  .hero-portrait img { transform: scale(1.035); }
 }

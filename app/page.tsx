@@ -120,7 +120,6 @@ export default function Home() {
   useEffect(() => {
     const root = document.documentElement;
     const animated = Array.from(document.querySelectorAll<HTMLElement>("[data-scroll]"));
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     let frame = 0;
 
     const update = () => {
@@ -141,7 +140,7 @@ export default function Home() {
       animated.forEach((element) => {
         const rect = element.getBoundingClientRect();
         const raw = (viewport - rect.top) / Math.max(viewport + rect.height * 0.5, 1);
-        const progress = reducedMotion.matches ? 1 : Math.min(Math.max(raw, 0), 1);
+        const progress = Math.min(Math.max(raw, 0), 1);
         element.style.setProperty("--scroll-p", progress.toFixed(4));
         element.style.setProperty("--scroll-offset", `${Math.round((1 - progress) * 96)}px`);
         element.style.setProperty("--scroll-offset-soft", `${Math.round((1 - progress) * 43)}px`);
@@ -149,7 +148,7 @@ export default function Home() {
         element.style.setProperty("--scroll-parallax", `${Math.round((progress - 0.5) * -110)}px`);
         element.style.setProperty("--scroll-parallax-soft", `${Math.round((progress - 0.5) * -39)}px`);
         element.style.setProperty("--scroll-opacity", (0.35 + progress * 0.65).toFixed(4));
-        const imageOpacity = Math.min(Math.max((progress - 0.04) / 0.52, 0), 1);
+        const imageOpacity = Math.min(Math.max((progress - 0.02) / 0.68, 0), 1);
         element.style.setProperty("--image-opacity", imageOpacity.toFixed(4));
         element.style.setProperty("--image-blur", `${((1 - imageOpacity) * 12).toFixed(2)}px`);
         element.style.setProperty("--scroll-wipe", `${Math.max(0, (1 - progress) * 100).toFixed(2)}%`);
@@ -242,14 +241,6 @@ export default function Home() {
     const distance = end - start;
     const duration = Math.min(1200, Math.max(700, Math.abs(distance) * 0.32));
     const startedAt = performance.now();
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    if (reduceMotion) {
-      window.scrollTo(0, end);
-      window.history.pushState(null, "", `#${targetId}`);
-      return;
-    }
-
     const animate = (now: number) => {
       const progress = Math.min((now - startedAt) / duration, 1);
       const eased = progress < 0.5
