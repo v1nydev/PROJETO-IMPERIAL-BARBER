@@ -139,21 +139,23 @@ export default function Home() {
 
       animated.forEach((element) => {
         const rect = element.getBoundingClientRect();
-        const raw = (viewport - rect.top) / Math.max(viewport + rect.height * 0.5, 1);
-        const progress = Math.min(Math.max(raw, 0), 1);
-        element.style.setProperty("--scroll-p", progress.toFixed(4));
-        element.style.setProperty("--scroll-offset", `${Math.round((1 - progress) * 96)}px`);
-        element.style.setProperty("--scroll-offset-soft", `${Math.round((1 - progress) * 43)}px`);
-        element.style.setProperty("--scroll-offset-mini", `${Math.round((1 - progress) * 27)}px`);
-        element.style.setProperty("--scroll-parallax", `${Math.round((progress - 0.5) * -110)}px`);
-        element.style.setProperty("--scroll-parallax-soft", `${Math.round((progress - 0.5) * -39)}px`);
-        element.style.setProperty("--scroll-opacity", (0.35 + progress * 0.65).toFixed(4));
-        const imageOpacity = Math.min(Math.max((progress - 0.02) / 0.68, 0), 1);
+        const travelRaw = (viewport - rect.top) / Math.max(viewport + rect.height * 0.5, 1);
+        const travelProgress = Math.min(Math.max(travelRaw, 0), 1);
+        const enterRaw = (viewport - rect.top) / Math.max(viewport * 0.42, 1);
+        const enterProgress = Math.min(Math.max(enterRaw, 0), 1);
+        element.style.setProperty("--scroll-p", enterProgress.toFixed(4));
+        element.style.setProperty("--scroll-offset", `${Math.round((1 - enterProgress) * 96)}px`);
+        element.style.setProperty("--scroll-offset-soft", `${Math.round((1 - enterProgress) * 43)}px`);
+        element.style.setProperty("--scroll-offset-mini", `${Math.round((1 - enterProgress) * 27)}px`);
+        element.style.setProperty("--scroll-parallax", `${Math.round((travelProgress - 0.5) * -110)}px`);
+        element.style.setProperty("--scroll-parallax-soft", `${Math.round((travelProgress - 0.5) * -39)}px`);
+        element.style.setProperty("--scroll-opacity", (0.35 + enterProgress * 0.65).toFixed(4));
+        const imageOpacity = Math.min(Math.max(enterProgress / 0.9, 0), 1);
         element.style.setProperty("--image-opacity", imageOpacity.toFixed(4));
         element.style.setProperty("--image-blur", `${((1 - imageOpacity) * 12).toFixed(2)}px`);
-        element.style.setProperty("--scroll-wipe", `${Math.max(0, (1 - progress) * 100).toFixed(2)}%`);
-        element.style.setProperty("--scroll-scale", (1.12 - progress * 0.12).toFixed(4));
-        element.style.setProperty("--marquee-x", `${Math.round((0.5 - progress) * 38)}vw`);
+        element.style.setProperty("--scroll-wipe", `${Math.max(0, (1 - enterProgress) * 100).toFixed(2)}%`);
+        element.style.setProperty("--scroll-scale", (1.12 - travelProgress * 0.12).toFixed(4));
+        element.style.setProperty("--marquee-x", `${Math.round((0.5 - travelProgress) * 38)}vw`);
       });
     };
 
