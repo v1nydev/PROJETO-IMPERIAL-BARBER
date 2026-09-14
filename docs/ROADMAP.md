@@ -209,6 +209,8 @@ esconder elementos na interface.
 
 # ETAPA 15 — DADOS INICIAIS / SEED
 
+**Status: concluída.**
+
 Criar dados de demonstração realistas.
 
 ### Profissionais

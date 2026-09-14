@@ -18,6 +18,7 @@
     "supabase:reset": "supabase db reset",
     "supabase:lint": "supabase db lint --level error",
     "supabase:test": "supabase test db",
+    "supabase:seed:remote": "supabase db query --linked --file supabase/seed.sql",
     "supabase:push": "supabase db push"
   },
   "dependencies": {

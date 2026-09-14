@@ -101,6 +101,7 @@ Arquivos versionados:
 
 - `supabase/config.toml`: configuração local, sem secrets;
 - `supabase/migrations/`: histórico imutável das alterações de schema;
+- `supabase/seed.sql`: dados fictícios e reproduzíveis da demonstração;
 - `supabase/tests/database/`: verificações pgTAP de estrutura, índices e RLS.
 
 Com Docker ou runtime compatível disponível:
@@ -111,6 +112,17 @@ npm run supabase:reset
 npm run supabase:lint
 npm run supabase:test
 ```
+
+`npm run supabase:reset` recria o banco local e aplica automaticamente o seed.
+Para aplicar a carga de demonstração ao projeto remoto já vinculado, utilizar:
+
+```powershell
+npm run supabase:seed:remote
+```
+
+O seed usa identificadores fixos e pode ser reaplicado no ambiente de
+demonstração. Ele atualiza o catálogo fictício e recria somente os horários,
+exceções e agendamentos identificados como registros da demonstração.
 
 Para conectar um projeto remoto:
 
@@ -127,8 +139,20 @@ revisado. Nunca utilizar `db reset --linked` em produção.
 
 ## Limites da Etapa 14
 
-- nenhum dado inicial é inserido; isso pertence à Etapa 15;
 - nenhuma conta administrativa é criada;
 - não há login ou proteção de rotas nesta etapa;
 - a landing continua utilizando os dados mockados até a Etapa 24;
 - não há CRUD ou interface administrativa.
+
+## Dados da Etapa 15
+
+A carga inicial contém seis serviços, três profissionais, dez clientes
+fictícios, jornadas de segunda a sábado, duas exceções de disponibilidade e
+treze agendamentos distribuídos entre passado, hoje e próximos dias. Todos os
+status de agendamento estão representados para permitir a demonstração futura
+do dashboard e da agenda.
+
+Os clientes são inteiramente fictícios. E-mails usam o domínio reservado
+`example.com`, e os telefones seguem uma sequência explicitamente destinada à
+demonstração. O seed não cria identidades no Supabase Auth; a criação de contas
+e credenciais pertence à Etapa 16.
