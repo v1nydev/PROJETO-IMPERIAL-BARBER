@@ -1,26 +1,37 @@
-import { ShieldCheck } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { logoutAction } from "@/app/admin/actions";
+import { CalendarClock } from "lucide-react";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 
-export default function AdminAccessConfirmedPage() {
+export default function AdminDashboardPage() {
   return (
-    <main className="admin-access-page">
-      <section className="admin-access-card">
-        <span className="admin-access-icon" aria-hidden="true">
-          <ShieldCheck />
-        </span>
-        <p className="admin-auth-kicker">Sessão verificada</p>
-        <h1>Acesso autorizado.</h1>
-        <p>
-          Sua sessão está ativa. A estrutura visual do painel será criada na
-          próxima etapa do projeto.
-        </p>
-        <form action={logoutAction}>
-          <Button type="submit" size="lg" className="admin-logout-button">
-            Sair da conta
-          </Button>
-        </form>
+    <div className="admin-page">
+      <header className="admin-page-heading">
+        <p className="admin-page-kicker">Visão geral</p>
+        <h1>Dashboard</h1>
+        <p>Acompanhe a operação da Imperial Barber em um só lugar.</p>
+      </header>
+
+      <section className="admin-workspace" aria-labelledby="dashboard-empty-title">
+        <Empty className="admin-empty-state">
+          <EmptyMedia variant="icon">
+            <CalendarClock aria-hidden="true" />
+          </EmptyMedia>
+          <EmptyHeader>
+            <EmptyTitle id="dashboard-empty-title">
+              O resumo do dia aparecerá aqui.
+            </EmptyTitle>
+            <EmptyDescription>
+              A estrutura do painel está pronta. Os dados operacionais serão
+              conectados na próxima etapa.
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       </section>
-    </main>
+    </div>
   );
 }

@@ -1,4 +1,5 @@
 import { requireAdministrativeActor } from "@/lib/auth/admin";
+import { AdminShell } from "@/app/admin/(protected)/admin-shell";
 
 export const dynamic = "force-dynamic";
 
@@ -7,6 +8,7 @@ export default async function ProtectedAdminLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  await requireAdministrativeActor();
-  return children;
+  const actor = await requireAdministrativeActor();
+
+  return <AdminShell actor={actor}>{children}</AdminShell>;
 }

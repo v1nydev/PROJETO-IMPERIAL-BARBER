@@ -327,6 +327,8 @@ Não armazenar tokens sensíveis em código-fonte.
 
 # ETAPA 17 — LAYOUT DO PAINEL ADMINISTRATIVO
 
+**Status: concluída em 14/09/2026.**
+
 Criar a fundação visual do painel.
 
 ## Navegação
@@ -360,6 +362,21 @@ mas priorizar produtividade e legibilidade.
 Não transformar o painel em uma coleção exagerada de cards.
 
 Evitar estética genérica de dashboard gerado por IA.
+
+### Resultado da etapa
+
+- [x] Shell protegido e reutilizável para todas as rotas administrativas.
+- [x] Sidebar recolhível no desktop e navegação em gaveta no mobile.
+- [x] Navegação para Dashboard, Agenda, Agendamentos, Serviços, Profissionais e
+  Configurações.
+- [x] Header com contexto da página e identificação do usuário autenticado.
+- [x] Logout mantido acessível na navegação.
+- [x] Área principal e páginas-placeholder sem antecipar funcionalidades das
+  próximas etapas.
+- [x] Estados de loading, vazio e erro implementados.
+- [x] TypeScript, lint e build executados com sucesso; landing page preservada.
+
+A Etapa 18 não foi iniciada.
 
 ---
 
