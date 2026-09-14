@@ -104,7 +104,7 @@ function ImperialMonogram({ className = "" }: { className?: string }) {
 }
 
 export default function Home() {
-  const days = useMemo(getNextDays, []);
+  const days = useMemo(() => getNextDays(), []);
   const [serviceId, setServiceId] = useState(services[0].id);
   const [barberId, setBarberId] = useState(barbers[0].id);
   const [dayId, setDayId] = useState(days[0]?.id ?? "");

@@ -51,17 +51,17 @@ O projeto deve continuar seguindo as regras estabelecidas no CLAUDE.md.
 
 # ETAPA 13 — ARQUITETURA FULL-STACK
 
-- [ ] Analisar a arquitetura atual antes de realizar alterações.
-- [ ] Definir claramente frontend, camada de dados e responsabilidades.
-- [ ] Preparar integração com Supabase.
-- [ ] Criar variáveis de ambiente corretamente.
-- [ ] Criar `.env.example`.
-- [ ] Garantir que secrets nunca sejam commitados.
-- [ ] Definir tipos principais do domínio.
-- [ ] Definir camada responsável pelo acesso aos dados.
-- [ ] Preparar estrutura para autenticação.
-- [ ] Preparar estrutura de rotas públicas e administrativas.
-- [ ] Documentar decisões arquiteturais relevantes.
+- [x] Analisar a arquitetura atual antes de realizar alterações.
+- [x] Definir claramente frontend, camada de dados e responsabilidades.
+- [x] Preparar integração com Supabase.
+- [x] Criar variáveis de ambiente corretamente.
+- [x] Criar `.env.example`.
+- [x] Garantir que secrets nunca sejam commitados.
+- [x] Definir tipos principais do domínio.
+- [x] Definir camada responsável pelo acesso aos dados.
+- [x] Preparar estrutura para autenticação.
+- [x] Preparar estrutura de rotas públicas e administrativas.
+- [x] Documentar decisões arquiteturais relevantes.
 
 ### Entidades iniciais
 
