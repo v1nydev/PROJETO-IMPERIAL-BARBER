@@ -74,6 +74,9 @@ As credenciais públicas identificam o projeto, mas a autorização real depende
 de grants e Row Level Security. Uma chave secreta do Supabase nunca poderá ser
 usada em Client Components nem em variáveis com prefixo `NEXT_PUBLIC_`.
 
+O fluxo administrativo de autenticação, renovação de sessão e associação de
+papéis está detalhado em `docs/AUTHENTICATION.md`.
+
 ## Autenticação e autorização
 
 Supabase Auth será responsável pelas sessões administrativas na Etapa 16. A

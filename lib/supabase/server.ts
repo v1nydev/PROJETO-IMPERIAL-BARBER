@@ -18,7 +18,7 @@ export async function createSupabaseServerClient() {
           });
         } catch {
           // Server Components cannot always persist refreshed cookies.
-          // The authentication stage will add the request-boundary refresh flow.
+          // proxy.ts persists refreshes at the request boundary.
         }
       },
     },

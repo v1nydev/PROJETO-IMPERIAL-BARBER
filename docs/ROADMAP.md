@@ -251,6 +251,52 @@ O seed deve permitir demonstrar o dashboard imediatamente.
 
 # ETAPA 16 — AUTENTICAÇÃO ADMINISTRATIVA
 
+**Status: concluída em 14/09/2026.**
+
+### Progresso registrado em 14/09/2026
+
+- [x] Confirmar que a Etapa 15 está isolada no commit `95baeaf` e que a
+  árvore de trabalho estava limpa antes de iniciar a análise.
+- [x] Reler integralmente este roadmap e as regras aplicáveis de autenticação
+  e persistência do projeto.
+- [x] Auditar a fundação existente em `lib/supabase/`, `.env.example`,
+  `app/admin/layout.tsx` e `app/chatgpt-auth.ts`.
+- [x] Confirmar que `/admin` ainda possui somente uma fronteira de layout, sem
+  página, formulário, sessão, logout ou proteção implementados.
+- [x] Confirmar que ainda não existe conta administrativa nem credencial de
+  aplicação versionada.
+- [x] Verificar a abordagem atual para Next.js 16/Vinext e Supabase SSR:
+  atualização de sessão no limite da requisição e validação server-side da
+  identidade e do papel do usuário.
+- [x] Configurar os valores públicos do projeto Supabase somente no ambiente
+  local/host, sem versionar secrets.
+- [x] Implementar atualização segura da sessão no limite da requisição.
+- [x] Implementar `/admin/login`, estados de envio e mensagem genérica para
+  credenciais inválidas.
+- [x] Implementar login com Supabase Auth e redirecionamento adequado.
+- [x] Criar a área protegida de `/admin/*` com verificação server-side de
+  identidade, usuário ativo e papel `admin` ou `barber`.
+- [x] Implementar logout e impedir que usuário autenticado permaneça na tela
+  de login.
+- [x] Preparar um procedimento reproduzível e restrito para associar uma
+  identidade do Supabase Auth ao papel administrativo, sem armazenar senha no
+  repositório.
+- [x] Criar e testar uma conta administrativa de demonstração com credenciais
+  definidas pelo proprietário do projeto.
+- [x] Executar testes de login válido, credenciais inválidas, logout, acesso
+  anônimo, sessão persistente e autorização por papel.
+- [x] Executar TypeScript, lint e build; corrigir erros relacionados.
+- [x] Marcar a Etapa 16 como concluída somente após todas as validações.
+
+### Resultado da etapa
+
+Autenticação administrativa concluída com uma conta confirmada, ativa e
+associada ao papel `admin`. Foram validados login válido, credenciais inválidas,
+autorização por papel, persistência da sessão após recarregar, logout e bloqueio
+do acesso anônimo. A migration, os testes pgTAP, TypeScript, lint, build e a
+análise de erros do banco foram executados com sucesso. A Etapa 17 não foi
+iniciada.
+
 ## Objetivo
 
 Criar acesso protegido ao painel.

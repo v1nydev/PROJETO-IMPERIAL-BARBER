@@ -1,0 +1,327 @@
+.admin-auth-page {
+  min-height: 100svh;
+  display: grid;
+  grid-template-columns: minmax(21rem, 0.92fr) minmax(28rem, 1.08fr);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.admin-auth-brand {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(2rem, 5vw, 5rem);
+  overflow: hidden;
+  border-right: 1px solid rgba(196, 163, 107, 0.3);
+  background:
+    linear-gradient(150deg, rgba(101, 31, 43, 0.24), transparent 48%),
+    var(--ink);
+  color: var(--paper);
+}
+
+.admin-auth-brand::after {
+  content: "IB";
+  position: absolute;
+  right: -0.08em;
+  bottom: -0.2em;
+  color: rgba(196, 163, 107, 0.065);
+  font-family: var(--font-display);
+  font-size: clamp(16rem, 35vw, 34rem);
+  line-height: 0.7;
+  pointer-events: none;
+}
+
+.admin-auth-wordmark {
+  position: relative;
+  z-index: 1;
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  text-transform: uppercase;
+}
+
+.admin-auth-wordmark > span:last-child {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.admin-auth-wordmark strong {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+}
+
+.admin-auth-wordmark small {
+  color: var(--paper-muted);
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+}
+
+.admin-auth-monogram {
+  width: 3.5rem;
+  height: 3.5rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--brass);
+  border-radius: 50%;
+  color: var(--brass);
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+}
+
+.admin-auth-statement {
+  position: relative;
+  z-index: 1;
+  max-width: 38rem;
+  padding: clamp(5rem, 14vh, 10rem) 0;
+}
+
+.admin-auth-statement p,
+.admin-auth-kicker,
+.admin-auth-index {
+  color: var(--brass);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.admin-auth-statement h1 {
+  margin: 1.5rem 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, 7vw, 7.8rem);
+  font-weight: 400;
+  letter-spacing: -0.055em;
+  line-height: 0.91;
+}
+
+.admin-auth-statement h1 em {
+  color: var(--brass);
+  font-weight: 400;
+}
+
+.admin-auth-index {
+  position: relative;
+  z-index: 1;
+  color: var(--paper-muted);
+}
+
+.admin-auth-panel {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: clamp(2rem, 7vw, 7rem);
+}
+
+.admin-auth-panel-inner {
+  width: min(100%, 29rem);
+}
+
+.admin-auth-panel h2 {
+  margin: 1rem 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.7rem, 5vw, 4.75rem);
+  font-weight: 400;
+  letter-spacing: -0.045em;
+  line-height: 0.95;
+}
+
+.admin-auth-copy {
+  margin: 1.4rem 0 2.25rem;
+  color: #61594f;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  line-height: 1.65;
+}
+
+.admin-login-form,
+.admin-field {
+  display: grid;
+}
+
+.admin-login-form {
+  gap: 1.25rem;
+}
+
+.admin-field {
+  gap: 0.55rem;
+}
+
+.admin-field label {
+  color: #4a443d;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.admin-field input {
+  height: 3.25rem;
+  border-radius: 0;
+  border-color: #bdb2a4;
+  background: rgba(255, 255, 255, 0.36);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  box-shadow: none;
+}
+
+.admin-field input::placeholder {
+  color: #8a8073;
+}
+
+.admin-field input:focus-visible {
+  border-color: var(--brass-dark);
+  box-shadow: 0 0 0 3px rgba(123, 90, 47, 0.16);
+}
+
+.admin-login-submit,
+.admin-logout-button {
+  height: 3.35rem;
+  justify-content: space-between;
+  border-radius: 0;
+  background: var(--oxblood);
+  color: var(--paper);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.admin-login-submit:hover,
+.admin-logout-button:hover {
+  background: #7c2938;
+}
+
+.admin-auth-alert {
+  border-radius: 0;
+  border-color: rgba(101, 31, 43, 0.35);
+  background: rgba(101, 31, 43, 0.06);
+}
+
+.admin-access-message {
+  margin: 0 0 1.25rem;
+  padding: 0.9rem 1rem;
+  border-left: 2px solid var(--oxblood);
+  background: rgba(101, 31, 43, 0.07);
+  color: var(--oxblood);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.admin-back-link {
+  display: inline-block;
+  margin-top: 2rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid #a69b8d;
+  color: #62594f;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+}
+
+.admin-access-page,
+.admin-loading {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  background: var(--ink);
+}
+
+.admin-access-card {
+  width: min(100%, 40rem);
+  padding: clamp(2rem, 6vw, 4.5rem);
+  border: 1px solid var(--line);
+  background: #111011;
+}
+
+.admin-access-icon {
+  width: 3.75rem;
+  height: 3.75rem;
+  display: grid;
+  place-items: center;
+  margin-bottom: 2.5rem;
+  border: 1px solid var(--brass);
+  border-radius: 50%;
+  color: var(--brass);
+}
+
+.admin-access-icon svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.admin-access-card h1 {
+  margin: 0.8rem 0 1rem;
+  font-family: var(--font-display);
+  font-size: clamp(2.8rem, 7vw, 5.5rem);
+  font-weight: 400;
+  letter-spacing: -0.05em;
+}
+
+.admin-access-card > p:not(.admin-auth-kicker) {
+  max-width: 31rem;
+  margin-bottom: 2rem;
+  color: var(--paper-muted);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  line-height: 1.65;
+}
+
+.admin-loading {
+  align-content: center;
+  grid-template-columns: auto auto;
+  gap: 0.8rem;
+  color: var(--paper-muted);
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 860px) {
+  .admin-auth-page {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-auth-brand {
+    min-height: auto;
+    padding: 1.5rem;
+  }
+
+  .admin-auth-brand::after,
+  .admin-auth-index {
+    display: none;
+  }
+
+  .admin-auth-statement {
+    padding: 4.5rem 0 1rem;
+  }
+
+  .admin-auth-statement h1 {
+    max-width: 34rem;
+    font-size: clamp(3.25rem, 14vw, 5.8rem);
+  }
+
+  .admin-auth-panel {
+    min-height: auto;
+    place-items: start center;
+    padding: 3.5rem 1.5rem 5rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .admin-auth-statement h1 {
+    font-size: 3.05rem;
+  }
+
+  .admin-auth-panel {
+    padding-right: 1.1rem;
+    padding-left: 1.1rem;
+  }
+}
