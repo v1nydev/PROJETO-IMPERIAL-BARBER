@@ -91,6 +91,8 @@ A etapa estará concluída quando:
 
 # ETAPA 14 — BANCO DE DADOS / SUPABASE
 
+**Status: concluída.**
+
 ## Objetivo
 
 Criar a fonte real de dados da Imperial Barber.

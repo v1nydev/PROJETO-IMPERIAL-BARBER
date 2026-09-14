@@ -2,6 +2,7 @@ import type {
   Appointment,
   Barber,
   BarberAvailability,
+  BarberAvailabilityException,
   Client,
   EntityId,
   Service,
@@ -27,4 +28,5 @@ export interface DomainRepositories {
   services: ReadRepository<Service>;
   appointments: ReadRepository<Appointment>;
   barberAvailability: ReadRepository<BarberAvailability>;
+  barberAvailabilityExceptions: ReadRepository<BarberAvailabilityException>;
 }

@@ -126,6 +126,21 @@ desnecessária. Ele não integra o caminho oficial de dados da Fase 2. Uma remo�
 futura deve ser explícita e ocorrer apenas quando não houver dependência de
 infraestrutura ou hospedagem.
 
+## Banco Supabase
+
+A Etapa 14 materializa a arquitetura em PostgreSQL:
+
+- a configuração reproduzível fica em `supabase/config.toml`;
+- migrations imutáveis ficam em `supabase/migrations/`;
+- testes estruturais e de RLS ficam em `supabase/tests/database/`;
+- o modelo, constraints, índices e políticas estão documentados em
+  `docs/DATABASE.md`.
+
+O banco pode ser preparado localmente sem alterar a landing. A aplicação só
+passará a consultar essas tabelas nas etapas que implementarem os respectivos
+casos de uso. Aplicar migrations a um projeto remoto exige conexão explícita via
+Supabase CLI e nunca deve depender de mudanças manuais no painel.
+
 ## Estrutura preparada
 
 ```text

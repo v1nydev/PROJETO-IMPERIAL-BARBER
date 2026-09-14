@@ -13,11 +13,16 @@ export type AppointmentStatus =
   | "cancelled"
   | "no_show";
 
+export type AvailabilityExceptionKind =
+  | "day_off"
+  | "holiday"
+  | "blocked"
+  | "unavailable";
+
 export type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 export interface User {
   id: EntityId;
-  authUserId: EntityId;
   role: UserRole;
   name: string;
   email: string;
@@ -32,7 +37,7 @@ export interface Barber {
   name: string;
   slug: string;
   specialty: string;
-  bio: string | null;
+  bio: string;
   avatarUrl: string | null;
   active: boolean;
   createdAt: ISOTimestamp;
@@ -80,6 +85,19 @@ export interface BarberAvailability {
   dayOfWeek: DayOfWeek;
   startTime: ISOTime;
   endTime: ISOTime;
+  active: boolean;
+  createdAt: ISOTimestamp;
+  updatedAt: ISOTimestamp;
+}
+
+export interface BarberAvailabilityException {
+  id: EntityId;
+  barberId: EntityId | null;
+  exceptionDate: ISODate;
+  startTime: ISOTime | null;
+  endTime: ISOTime | null;
+  kind: AvailabilityExceptionKind;
+  reason: string | null;
   active: boolean;
   createdAt: ISOTimestamp;
   updatedAt: ISOTimestamp;
