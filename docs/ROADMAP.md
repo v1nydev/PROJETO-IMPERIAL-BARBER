@@ -439,11 +439,11 @@ Não criar métricas sem utilidade real.
 - [x] validações de TypeScript, lint e build concluídas;
 - [x] funcionamento validado manualmente pelo usuário.
 
-A Etapa 19 não foi iniciada.
-
 ---
 
 # ETAPA 19 — AGENDA
+
+**Status: concluída em 14/09/2026.**
 
 ## Objetivo
 
@@ -489,6 +489,20 @@ Diferenciar visualmente:
 - concluído;
 - cancelado;
 - não compareceu.
+
+## Resultado da etapa
+
+- [x] Visualizações da agenda de hoje e dos próximos sete dias;
+- [x] filtros por profissional, status e data;
+- [x] horários agrupados por dia e ordenados cronologicamente;
+- [x] cliente, serviço, profissional, duração, preço e status exibidos em cada atendimento;
+- [x] diferenciação visual para todos os estados de agendamento;
+- [x] estados de carregamento, vazio e erro;
+- [x] consultas autenticadas ao Supabase respeitando RLS;
+- [x] TypeScript, lint e build executados com sucesso;
+- [x] funcionamento validado pelo usuário em desktop e mobile.
+
+A Etapa 20 não foi iniciada.
 
 ---
 
