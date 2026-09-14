@@ -502,11 +502,11 @@ Diferenciar visualmente:
 - [x] TypeScript, lint e build executados com sucesso;
 - [x] funcionamento validado pelo usuário em desktop e mobile.
 
-A Etapa 20 não foi iniciada.
-
 ---
 
 # ETAPA 20 — GESTÃO DE AGENDAMENTOS
+
+**Status: concluída em 14/09/2026.**
 
 ## Objetivo
 
@@ -552,6 +552,22 @@ Todas as ações devem possuir:
 - sucesso;
 - erro;
 - feedback visual adequado.
+
+## Resultado da etapa
+
+- [x] Visualização dos detalhes completos de cada agendamento;
+- [x] ações para confirmar, iniciar e concluir atendimentos;
+- [x] cancelamento com confirmação explícita e preservação do histórico;
+- [x] remarcação de data e horário;
+- [x] alteração de profissional e serviço;
+- [x] edição de observações;
+- [x] validação server-side de disponibilidade e conflito de horários;
+- [x] proteção das mutations por autenticação administrativa e RLS;
+- [x] estados de carregamento, sucesso e erro;
+- [x] TypeScript, lint e build executados com sucesso;
+- [x] funcionamento validado pelo usuário em desktop e mobile.
+
+A Etapa 21 não foi iniciada.
 
 ---
 
