@@ -376,11 +376,11 @@ Evitar estética genérica de dashboard gerado por IA.
 - [x] Estados de loading, vazio e erro implementados.
 - [x] TypeScript, lint e build executados com sucesso; landing page preservada.
 
-A Etapa 18 não foi iniciada.
-
 ---
 
 # ETAPA 18 — DASHBOARD
+
+**Status: concluída em 14/09/2026.**
 
 ## Objetivo
 
@@ -428,6 +428,18 @@ Preparar:
 - taxa de cancelamento.
 
 Não criar métricas sem utilidade real.
+
+## Resultado da etapa
+
+- [x] Dashboard conectado ao Supabase no servidor, respeitando autenticação e RLS;
+- [x] resumo diário com faturamento previsto e realizado, agendamentos, conclusões e cancelamentos;
+- [x] listagem dos próximos atendimentos;
+- [x] ticket médio, serviço mais vendido, profissional com mais atendimentos e taxa de cancelamento;
+- [x] estados de carregamento, vazio e erro, com layout responsivo;
+- [x] validações de TypeScript, lint e build concluídas;
+- [x] funcionamento validado manualmente pelo usuário.
+
+A Etapa 19 não foi iniciada.
 
 ---
 

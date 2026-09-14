@@ -790,3 +790,434 @@
     padding-left: 1rem;
   }
 }
+
+/* Dashboard */
+
+.admin-dashboard-heading {
+  max-width: none;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.admin-dashboard-heading time {
+  flex: 0 0 auto;
+  padding-bottom: 0.35rem;
+  color: #756b60;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.admin-dashboard-summary {
+  border-top: 1px solid #b9ad9e;
+  border-bottom: 1px solid #b9ad9e;
+}
+
+.admin-dashboard-summary dl {
+  display: grid;
+  grid-template-columns: 1.35fr 1.2fr repeat(3, minmax(8rem, 0.75fr));
+  margin: 0;
+}
+
+.admin-dashboard-summary dl > div {
+  min-width: 0;
+  padding: 1.55rem clamp(1rem, 2vw, 1.75rem) 1.45rem;
+  border-right: 1px solid #d1c7bb;
+}
+
+.admin-dashboard-summary dl > div:first-child {
+  padding-left: 0;
+}
+
+.admin-dashboard-summary dl > div:last-child {
+  padding-right: 0;
+  border-right: 0;
+}
+
+.admin-dashboard-summary dt {
+  color: #776d62;
+  font-size: 0.67rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.admin-dashboard-summary dd {
+  margin: 1rem 0 0.75rem;
+  color: #27221e;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3.2vw, 3.6rem);
+  letter-spacing: -0.04em;
+  line-height: 0.9;
+}
+
+.admin-dashboard-summary .is-emphasized dd {
+  color: var(--oxblood);
+}
+
+.admin-dashboard-summary span {
+  display: block;
+  color: #8a8177;
+  font-size: 0.68rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 1100px) {
+  .admin-dashboard-summary dl {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  .admin-dashboard-summary dl > div {
+    grid-column: span 2;
+    border-bottom: 1px solid #d1c7bb;
+  }
+
+  .admin-dashboard-summary dl > div:nth-child(-n + 2) {
+    grid-column: span 3;
+  }
+
+  .admin-dashboard-summary dl > div:nth-child(2),
+  .admin-dashboard-summary dl > div:last-child {
+    border-right: 0;
+  }
+
+  .admin-dashboard-summary dl > div:nth-child(n + 3) {
+    border-bottom: 0;
+  }
+
+  .admin-dashboard-summary dl > div:first-child,
+  .admin-dashboard-summary dl > div:nth-child(3) {
+    padding-left: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-dashboard-heading {
+    display: grid;
+  }
+
+  .admin-dashboard-heading time {
+    padding: 0;
+  }
+
+  .admin-dashboard-summary dl {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .admin-dashboard-summary dl > div,
+  .admin-dashboard-summary dl > div:nth-child(-n + 2),
+  .admin-dashboard-summary dl > div:nth-child(n + 3) {
+    grid-column: auto;
+    padding: 1.3rem 1rem;
+    border-right: 1px solid #d1c7bb;
+    border-bottom: 1px solid #d1c7bb;
+  }
+
+  .admin-dashboard-summary dl > div:nth-child(odd) {
+    padding-left: 0;
+  }
+
+  .admin-dashboard-summary dl > div:nth-child(even) {
+    padding-right: 0;
+    border-right: 0;
+  }
+
+  .admin-dashboard-summary dl > div:last-child {
+    grid-column: 1 / -1;
+    padding-right: 0;
+    padding-left: 0;
+    border-right: 0;
+    border-bottom: 0;
+  }
+}
+
+.admin-dashboard-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(18rem, 0.72fr);
+  gap: clamp(2.5rem, 5vw, 5.5rem);
+}
+
+.admin-upcoming-section,
+.admin-month-insights {
+  min-width: 0;
+}
+
+.admin-dashboard-section-heading {
+  min-height: 4.8rem;
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding-bottom: 1.35rem;
+  border-bottom: 1px solid #b9ad9e;
+}
+
+.admin-dashboard-section-heading .admin-page-kicker {
+  margin-bottom: 0.55rem;
+}
+
+.admin-dashboard-section-heading h2 {
+  margin: 0;
+  color: #27221e;
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+  font-weight: 400;
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+
+.admin-dashboard-section-heading > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0 0.4rem;
+  border-bottom: 1px solid #9b7a46;
+  color: #6f512d;
+  font-size: 0.67rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.admin-dashboard-section-heading > a svg {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+.admin-upcoming-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.admin-upcoming-list li {
+  display: grid;
+  grid-template-columns: 5.4rem minmax(10rem, 1.2fr) minmax(9rem, 0.8fr) auto;
+  gap: clamp(1rem, 2vw, 2rem);
+  align-items: center;
+  padding: 1.25rem 0;
+  border-bottom: 1px solid #d4cabd;
+}
+
+.admin-appointment-time,
+.admin-appointment-client,
+.admin-appointment-barber,
+.admin-appointment-value {
+  min-width: 0;
+  display: grid;
+}
+
+.admin-appointment-time {
+  gap: 0.3rem;
+}
+
+.admin-appointment-time span,
+.admin-appointment-barber span,
+.admin-appointment-client span {
+  overflow: hidden;
+  color: #80766b;
+  font-size: 0.68rem;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-appointment-time span {
+  text-transform: capitalize;
+}
+
+.admin-appointment-time strong {
+  color: var(--oxblood);
+  font-family: var(--font-display);
+  font-size: 1.65rem;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+}
+
+.admin-appointment-client,
+.admin-appointment-barber {
+  gap: 0.3rem;
+}
+
+.admin-appointment-client strong,
+.admin-appointment-barber strong {
+  overflow: hidden;
+  color: #2e2924;
+  font-size: 0.82rem;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-appointment-client strong {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+
+.admin-appointment-value {
+  justify-items: end;
+  gap: 0.5rem;
+  text-align: right;
+}
+
+.admin-appointment-value > strong {
+  color: #342f2a;
+  font-size: 0.78rem;
+}
+
+.admin-appointment-value > span {
+  padding: 0.24rem 0.42rem;
+  border: 1px solid #beb3a6;
+  color: #675f56;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.admin-appointment-value > span[data-status="confirmed"] {
+  border-color: rgba(74, 104, 70, 0.42);
+  background: rgba(74, 104, 70, 0.07);
+  color: #486346;
+}
+
+.admin-appointment-value > span[data-status="pending"] {
+  border-color: rgba(141, 108, 56, 0.38);
+  background: rgba(141, 108, 56, 0.07);
+  color: #785a2f;
+}
+
+.admin-dashboard-empty {
+  min-height: 24rem;
+  border: 0;
+  border-bottom: 1px solid #d4cabd;
+  border-radius: 0;
+}
+
+.admin-dashboard-empty [data-slot="empty-icon"] {
+  border: 1px solid #c8bbaa;
+  border-radius: 50%;
+  background: transparent;
+  color: #8d6c38;
+}
+
+.admin-month-insights dl {
+  margin: 0;
+}
+
+.admin-month-insights dl > div {
+  padding: 1.2rem 0;
+  border-bottom: 1px solid #d4cabd;
+}
+
+.admin-month-insights dt {
+  color: #7c7267;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.admin-month-insights dd {
+  overflow: hidden;
+  margin: 0.7rem 0 0.35rem;
+  color: #2d2823;
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 2vw, 1.75rem);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+  text-overflow: ellipsis;
+}
+
+.admin-month-insights dl span {
+  display: block;
+  color: #8a8177;
+  font-size: 0.67rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 1100px) {
+  .admin-dashboard-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-month-insights dl {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .admin-month-insights dl > div:nth-child(odd) {
+    padding-right: 1.5rem;
+    border-right: 1px solid #d4cabd;
+  }
+
+  .admin-month-insights dl > div:nth-child(even) {
+    padding-left: 1.5rem;
+  }
+}
+
+@media (max-width: 760px) {
+  .admin-upcoming-list li {
+    grid-template-columns: 4.7rem minmax(0, 1fr) auto;
+    gap: 0.8rem 1rem;
+  }
+
+  .admin-appointment-barber {
+    grid-column: 2 / 4;
+    grid-row: 2;
+    padding-top: 0.7rem;
+    border-top: 1px solid #ddd4c9;
+  }
+
+  .admin-appointment-value {
+    grid-column: 3;
+    grid-row: 1;
+  }
+}
+
+@media (max-width: 520px) {
+  .admin-dashboard-section-heading {
+    min-height: 0;
+    display: grid;
+  }
+
+  .admin-dashboard-section-heading > a {
+    width: fit-content;
+  }
+
+  .admin-upcoming-list li {
+    grid-template-columns: 4.35rem minmax(0, 1fr);
+  }
+
+  .admin-appointment-value {
+    grid-column: 2;
+    grid-row: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 0.7rem;
+    border-top: 1px solid #ddd4c9;
+    text-align: left;
+  }
+
+  .admin-appointment-barber {
+    grid-column: 2;
+    grid-row: 3;
+  }
+
+  .admin-month-insights dl {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-month-insights dl > div:nth-child(odd),
+  .admin-month-insights dl > div:nth-child(even) {
+    padding-right: 0;
+    padding-left: 0;
+    border-right: 0;
+  }
+}
