@@ -283,7 +283,7 @@ values
     '10000000-0000-0000-0000-000000000001',
     current_date,
     time '09:00',
-    'confirmed',
+    'completed',
     'Cliente prefere acabamento natural.'
   ),
   (
@@ -323,8 +323,8 @@ values
     '10000000-0000-0000-0000-000000000002',
     current_date,
     time '15:30',
-    'confirmed',
-    null
+    'cancelled',
+    'Cancelamento de demonstração.'
   ),
   (
     '50000000-0000-0000-0000-000000000006',
