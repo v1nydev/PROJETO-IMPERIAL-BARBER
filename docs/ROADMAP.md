@@ -573,6 +573,8 @@ A Etapa 21 não foi iniciada.
 
 # ETAPA 21 — GESTÃO DE SERVIÇOS
 
+**Status: concluída em 15/09/2026.**
+
 Permitir ao administrador:
 
 - criar serviço;
@@ -586,6 +588,26 @@ Evitar excluir definitivamente serviços associados a agendamentos
 históricos.
 
 Serviços inativos não devem aparecer para novos agendamentos.
+
+## Progresso da etapa
+
+- [x] Catálogo administrativo conectado ao Supabase, incluindo serviços ativos e inativos.
+- [x] Criação de serviços com validação server-side.
+- [x] Edição de nome, descrição, duração e preço.
+- [x] Ativação e desativação sem exclusão dos registros históricos.
+- [x] Mutations restritas ao papel `admin` e protegidas também por RLS.
+- [x] Estados de carregamento, vazio, erro, sucesso e confirmação de desativação.
+- [x] Layout responsivo para desktop e mobile.
+- [x] TypeScript, lint e build executados sem erros relacionados à etapa.
+- [x] Funcionamento validado manualmente pelo usuário em desktop e mobile.
+
+## Resultado da etapa
+
+A gestão de serviços está conectada ao Supabase e permite criar, editar,
+ativar e desativar itens do catálogo sem apagar o histórico. As mutations são
+restritas ao papel administrativo, possuem validação server-side e feedback de
+interface. O funcionamento foi validado em desktop e mobile. A integração do
+catálogo ativo com a landing page permanece reservada para a Etapa 24.
 
 ---
 
