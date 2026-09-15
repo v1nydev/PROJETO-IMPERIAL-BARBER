@@ -17,7 +17,7 @@ O projeto inclui:
 - Controle de status dos agendamentos
 - Métricas e faturamento
 - Autenticação
-- Interface responsiva
+- Interface responsiva e adaptada para mobile.
 
 ## 🧩 Principais funcionalidades
 
@@ -59,11 +59,10 @@ Paleta baseada em:
 - Off-white
 - Azul de destaque
 
-O objetivo foi evitar a estética genérica de interfaces geradas por IA, priorizando tipografia, fotografia, composição e hierarquia visual.
-
 ## 🚧 Status
 
 Projeto em desenvolvimento.
+ETAPA: 22 / 29.
 
 ### Fase atual
 Sistema administrativo e integração full-stack.
