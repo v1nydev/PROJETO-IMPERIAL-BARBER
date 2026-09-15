@@ -1,6 +1,7 @@
 "use client";
 
 import { type MouseEvent, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Toaster } from "@/components/ui/sonner";
@@ -510,7 +511,16 @@ export default function Home() {
         <a className="brand footer-brand" href="#inicio"><span className="brand-mark footer-emblem"><ImperialMonogram /></span><span className="brand-copy"><strong>Imperial</strong><small>Barber · São Paulo</small></span></a>
         <p>O ofício de cuidar,<br />sem perder a medida.</p>
         <div className="footer-links"><a href="#servicos">Serviços</a><a href="#agenda">Agenda</a><a href="#localizacao">Localização</a><a href="https://instagram.com" target="_blank" rel="noreferrer">Instagram ↗</a></div>
-        <div className="footer-bottom"><span>© 2026 Imperial Barber</span><span>São Paulo — Brasil</span><a href="#inicio">Voltar ao topo ↑</a></div>
+        <div className="footer-bottom">
+          <span>© 2026 Imperial Barber</span>
+          <span>São Paulo — Brasil</span>
+          <div className="footer-bottom-links">
+            <Link className="footer-admin-link" href="/admin">
+              Área administrativa <span aria-hidden="true">→</span>
+            </Link>
+            <a href="#inicio">Voltar ao topo ↑</a>
+          </div>
+        </div>
       </footer>
       <Toaster position="bottom-right" />
     </main>
