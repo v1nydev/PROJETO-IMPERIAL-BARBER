@@ -1,25 +1,36 @@
 "use client";
 
-import { type MouseEvent, useEffect, useMemo, useRef, useState } from "react";
+import {
+  type FormEvent,
+  type MouseEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
+import type {
+  PublicBarber,
+  PublicCatalog,
+  PublicService,
+  PublicShopSettings,
+} from "@/types/public-booking";
 
-type Service = {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  duration: string;
-};
-
-type Barber = {
-  id: string;
-  name: string;
-  specialty: string;
-  initials: string;
+type CatalogStatus = "loading" | "ready" | "error";
+type AvailabilityStatus = "idle" | "loading" | "ready" | "error";
+type BookingRequest = {
+  serviceId: string;
+  barberId: string;
+  date: string;
+  time: string;
+  clientName: string;
+  phone: string;
+  email: string;
+  website: string;
 };
 
 type ModelContext = {
@@ -36,56 +47,104 @@ type ModelContext = {
   ) => void | Promise<void>;
 };
 
-const services: Service[] = [
+const fallbackServices: PublicService[] = [
   {
-    id: "corte-imperial",
+    id: "10000000-0000-0000-0000-000000000001",
     name: "Corte Imperial",
     description: "Consultoria, lavagem, corte e finalização.",
     price: 95,
-    duration: "50 min",
+    durationMinutes: 50,
   },
   {
-    id: "barboterapia",
+    id: "10000000-0000-0000-0000-000000000002",
     name: "Barboterapia",
     description: "Toalha quente, óleo, navalha e hidratação.",
     price: 75,
-    duration: "40 min",
+    durationMinutes: 40,
   },
   {
-    id: "combo-casa",
+    id: "10000000-0000-0000-0000-000000000003",
     name: "Combo da Casa",
     description: "Corte Imperial e Barboterapia em uma sessão.",
     price: 150,
-    duration: "1h25",
+    durationMinutes: 85,
   },
   {
-    id: "acabamento",
+    id: "10000000-0000-0000-0000-000000000004",
     name: "Acabamento",
     description: "Contornos, costeletas e nuca alinhados.",
     price: 45,
-    duration: "25 min",
+    durationMinutes: 25,
   },
 ];
 
-const barbers: Barber[] = [
-  { id: "augusto", name: "Augusto Neri", specialty: "Clássicos & tesoura", initials: "AN" },
-  { id: "rafael", name: "Rafael Luz", specialty: "Degradê & textura", initials: "RL" },
-  { id: "miguel", name: "Miguel Reis", specialty: "Barba & navalha", initials: "MR" },
+const fallbackBarbers: PublicBarber[] = [
+  { id: "20000000-0000-0000-0000-000000000001", name: "Augusto Neri", specialty: "Clássicos & tesoura", avatarUrl: null },
+  { id: "20000000-0000-0000-0000-000000000002", name: "Rafael Luz", specialty: "Degradê & textura", avatarUrl: null },
+  { id: "20000000-0000-0000-0000-000000000003", name: "Miguel Reis", specialty: "Barba & navalha", avatarUrl: null },
 ];
 
-const times = ["09:30", "10:45", "12:00", "14:30", "16:00", "17:15", "18:30", "19:45"];
+const fallbackSettings: PublicShopSettings = {
+  name: "Imperial Barber",
+  phone: "(11) 3456-2012",
+  whatsapp: "(11) 93456-2012",
+  address: "Alameda Imperial, 120 — Jardins, São Paulo/SP",
+  openingHours: "Terça a sábado, das 9h às 20h.",
+  description: "Barbearia e alfaiataria do gesto.",
+};
 
 function money(value: number) {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(value);
 }
 
+function formatDuration(minutes: number) {
+  if (minutes < 60) return `${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  const remainder = minutes % 60;
+  return remainder ? `${hours}h${String(remainder).padStart(2, "0")}` : `${hours}h`;
+}
+
+function getInitials(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
+}
+
+function toLocalDateId(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+async function requestPublicBooking(booking: BookingRequest) {
+  const response = await fetch("/api/public/bookings", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(booking),
+  });
+  const payload = (await response.json()) as {
+    appointmentId?: string;
+    message?: string;
+  };
+
+  if (!response.ok || !payload.appointmentId) {
+    throw new Error(payload.message ?? "Não foi possível concluir a reserva.");
+  }
+
+  return payload.appointmentId;
+}
+
 function getNextDays() {
   const formatter = new Intl.DateTimeFormat("pt-BR", { weekday: "short", day: "2-digit", month: "short" });
-  return Array.from({ length: 5 }, (_, index) => {
+  return Array.from({ length: 7 }, (_, index) => {
     const date = new Date();
     date.setDate(date.getDate() + index);
     return {
-      id: date.toISOString().slice(0, 10),
+      id: toLocalDateId(date),
       label: index === 0 ? "Hoje" : formatter.format(date).replace(".", ""),
     };
   });
@@ -106,17 +165,106 @@ function ImperialMonogram({ className = "" }: { className?: string }) {
 
 export default function Home() {
   const days = useMemo(() => getNextDays(), []);
-  const [serviceId, setServiceId] = useState(services[0].id);
-  const [barberId, setBarberId] = useState(barbers[0].id);
+  const [services, setServices] = useState<PublicService[]>(fallbackServices);
+  const [barbers, setBarbers] = useState<PublicBarber[]>(fallbackBarbers);
+  const [settings, setSettings] = useState<PublicShopSettings>(fallbackSettings);
+  const [catalogStatus, setCatalogStatus] = useState<CatalogStatus>("loading");
+  const [serviceId, setServiceId] = useState(fallbackServices[0].id);
+  const [barberId, setBarberId] = useState(fallbackBarbers[0].id);
   const [dayId, setDayId] = useState(days[0]?.id ?? "");
-  const [time, setTime] = useState("18:30");
+  const [time, setTime] = useState("");
+  const [slots, setSlots] = useState<string[]>([]);
+  const [availabilityStatus, setAvailabilityStatus] =
+    useState<AvailabilityStatus>("idle");
   const [step, setStep] = useState(1);
   const [confirmed, setConfirmed] = useState(false);
+  const [appointmentId, setAppointmentId] = useState<string | null>(null);
+  const [clientName, setClientName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [website, setWebsite] = useState("");
+  const [bookingError, setBookingError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const scrollFrame = useRef<number | null>(null);
 
   const service = services.find((item) => item.id === serviceId) ?? services[0];
   const barber = barbers.find((item) => item.id === barberId) ?? barbers[0];
   const day = days.find((item) => item.id === dayId) ?? days[0];
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function loadCatalog() {
+      try {
+        const response = await fetch("/api/public/catalog", {
+          cache: "no-store",
+          signal: controller.signal,
+        });
+        if (!response.ok) throw new Error("Catalog request failed.");
+
+        const catalog = (await response.json()) as PublicCatalog;
+        setServices(catalog.services);
+        setBarbers(catalog.barbers);
+        if (catalog.settings) setSettings(catalog.settings);
+        setServiceId((current) =>
+          catalog.services.some((item) => item.id === current)
+            ? current
+            : (catalog.services[0]?.id ?? ""),
+        );
+        setBarberId((current) =>
+          catalog.barbers.some((item) => item.id === current)
+            ? current
+            : (catalog.barbers[0]?.id ?? ""),
+        );
+        setCatalogStatus("ready");
+      } catch (error) {
+        if (controller.signal.aborted) return;
+        console.error("[landing] Unable to refresh public catalog.", error);
+        setCatalogStatus("error");
+      }
+    }
+
+    void loadCatalog();
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    if (step !== 3 || !serviceId || !barberId || !dayId) return;
+    const controller = new AbortController();
+
+    async function loadAvailability() {
+      setAvailabilityStatus("loading");
+      setBookingError(null);
+      setSlots([]);
+      setTime("");
+
+      try {
+        const response = await fetch("/api/public/availability", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ serviceId, barberId, date: dayId }),
+          signal: controller.signal,
+        });
+        const payload = (await response.json()) as {
+          slots?: string[];
+          message?: string;
+        };
+        if (!response.ok) throw new Error(payload.message ?? "Availability request failed.");
+
+        const availableSlots = payload.slots ?? [];
+        setSlots(availableSlots);
+        setTime(availableSlots[0] ?? "");
+        setAvailabilityStatus("ready");
+      } catch (error) {
+        if (controller.signal.aborted) return;
+        console.error("[landing] Unable to load availability.", error);
+        setAvailabilityStatus("error");
+      }
+    }
+
+    void loadAvailability();
+    return () => controller.abort();
+  }, [barberId, dayId, serviceId, step]);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -194,29 +342,55 @@ export default function Home() {
               serviceId: { type: "string", enum: allowedServices },
               barberId: { type: "string", enum: allowedBarbers },
               date: { type: "string", description: "Data no formato AAAA-MM-DD" },
-              time: { type: "string", enum: times },
+              time: { type: "string", description: "Horário no formato HH:MM" },
+              clientName: { type: "string" },
+              phone: { type: "string" },
+              email: { type: "string" },
             },
-            required: ["serviceId", "barberId", "date", "time"],
+            required: ["serviceId", "barberId", "date", "time", "clientName", "phone"],
             additionalProperties: false,
           },
-          annotations: { readOnlyHint: false, untrustedContentHint: false },
-          execute(input) {
-            const value = input as { serviceId?: string; barberId?: string; date?: string; time?: string };
+          annotations: { readOnlyHint: false, untrustedContentHint: true },
+          async execute(input) {
+            const value = input as {
+              serviceId?: string;
+              barberId?: string;
+              date?: string;
+              time?: string;
+              clientName?: string;
+              phone?: string;
+              email?: string;
+            };
             if (
               !value.serviceId || !allowedServices.includes(value.serviceId) ||
               !value.barberId || !allowedBarbers.includes(value.barberId) ||
               !value.date || !days.some((item) => item.id === value.date) ||
-              !value.time || !times.includes(value.time)
+              !value.time || !/^\d{2}:\d{2}$/.test(value.time) ||
+              !value.clientName || !value.phone
             ) {
-              throw new Error("Serviço, barbeiro, data ou horário indisponível.");
+              throw new Error("Revise os dados obrigatórios do agendamento.");
             }
             setServiceId(value.serviceId);
             setBarberId(value.barberId);
             setDayId(value.date);
             setTime(value.time);
+            setClientName(value.clientName);
+            setPhone(value.phone);
+            setEmail(value.email ?? "");
             setStep(4);
+            const booking = await requestPublicBooking({
+              serviceId: value.serviceId,
+              barberId: value.barberId,
+              date: value.date,
+              time: value.time,
+              clientName: value.clientName,
+              phone: value.phone,
+              email: value.email ?? "",
+              website: "",
+            });
+            setAppointmentId(booking);
             setConfirmed(true);
-            return { status: "confirmed", serviceId: value.serviceId, barberId: value.barberId, date: value.date, time: value.time };
+            return { status: "confirmed", appointmentId: booking };
           },
         },
         { signal: lifecycle.signal },
@@ -224,12 +398,43 @@ export default function Home() {
     ).catch(() => undefined);
 
     return () => lifecycle.abort();
-  }, [days]);
+  }, [barbers, days, services]);
 
-  function confirmBooking() {
-    setConfirmed(true);
-    setStep(4);
-    toast.success("Horário reservado", { description: `${day?.label}, às ${time}, com ${barber.name}.` });
+  async function submitBooking(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!service || !barber || !day || !time) {
+      setBookingError("Volte uma etapa e selecione serviço, profissional, data e horário.");
+      return;
+    }
+
+    setBookingError(null);
+    setIsSubmitting(true);
+    try {
+      const booking = await requestPublicBooking({
+        serviceId: service.id,
+        barberId: barber.id,
+        date: day.id,
+        time,
+        clientName,
+        phone,
+        email,
+        website,
+      });
+      setAppointmentId(booking);
+      setConfirmed(true);
+      toast.success("Horário reservado", {
+        description: `${day.label}, às ${time}, com ${barber.name}.`,
+      });
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Não foi possível concluir a reserva. Tente novamente.";
+      setBookingError(message);
+      toast.error("Reserva não concluída", { description: message });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   function smoothScroll(event: MouseEvent<HTMLAnchorElement>, targetId: string) {
@@ -263,13 +468,25 @@ export default function Home() {
 
   function restartBooking() {
     setConfirmed(false);
+    setAppointmentId(null);
+    setBookingError(null);
+    setClientName("");
+    setPhone("");
+    setEmail("");
+    setTime("");
     setStep(1);
   }
 
-  function sendMockReminder() {
-    toast.success("Lembrete simulado", {
-      description: `${service.name} · ${day?.label}, ${time}. Em produção, conecte aqui o WhatsApp da barbearia.`,
-    });
+  function openWhatsAppSummary() {
+    if (!service || !barber || !day) return;
+    const destination = settings.whatsapp.replace(/\D/g, "");
+    const message = encodeURIComponent(
+      `Olá! Acabei de reservar ${service.name} com ${barber.name}, ${day.label}, às ${time}. Código: ${appointmentId?.slice(0, 8) ?? "confirmado"}.`,
+    );
+    const href = destination
+      ? `https://wa.me/${destination.startsWith("55") ? destination : `55${destination}`}?text=${message}`
+      : `https://wa.me/?text=${message}`;
+    window.open(href, "_blank", "noopener,noreferrer");
   }
 
   return (
@@ -300,7 +517,7 @@ export default function Home() {
           </p>
           <div className="hero-actions">
             <a className="primary-action" href="#agenda" onClick={(event) => smoothScroll(event, "agenda")}>Agendar meu ritual <span>↗</span></a>
-            <span className="availability"><i /> Próximo horário hoje, 18:30</span>
+            <span className="availability"><i /> Agenda online atualizada em tempo real</span>
           </div>
         </div>
 
@@ -312,7 +529,7 @@ export default function Home() {
 
         <aside className="hero-note" aria-label="Informações da barbearia">
           <span>Desde 2012</span>
-          <p>Alameda Imperial, 120<br />Jardins — São Paulo</p>
+          <p>{settings.address}</p>
         </aside>
       </section>
 
@@ -349,10 +566,15 @@ export default function Home() {
             <div className="service-row" role="listitem" key={item.id} data-scroll="row">
               <span className="service-number">{String(index + 1).padStart(2, "0")}</span>
               <div><h3>{item.name}</h3><p>{item.description}</p></div>
-              <span className="service-duration">{item.duration}</span>
+              <span className="service-duration">{formatDuration(item.durationMinutes)}</span>
               <strong>{money(item.price)}</strong>
             </div>
           ))}
+          {catalogStatus === "error" && (
+            <p className="catalog-note" role="status">
+              Exibindo o menu editorial. A agenda online está temporariamente indisponível.
+            </p>
+          )}
           <a className="menu-link" href="#agenda" onClick={(event) => smoothScroll(event, "agenda")}>Escolher um serviço <span>↓</span></a>
         </div>
       </section>
@@ -391,9 +613,13 @@ export default function Home() {
 
         <div className="booking-app" data-scroll="panel">
           <ol className="step-track" aria-label="Etapas do agendamento">
-            {["Serviço", "Especialista", "Horário", "Confirmação"].map((label, index) => (
+            {["Serviço", "Especialista", "Horário", "Seus dados"].map((label, index) => (
               <li key={label} className={step === index + 1 ? "active" : step > index + 1 ? "done" : ""}>
-                <button type="button" onClick={() => !confirmed && setStep(index + 1)} disabled={confirmed && index < 3}>
+                <button
+                  type="button"
+                  onClick={() => !confirmed && index + 1 < step && setStep(index + 1)}
+                  disabled={confirmed || index + 1 >= step}
+                >
                   <span>{String(index + 1).padStart(2, "0")}</span>{label}
                 </button>
               </li>
@@ -405,17 +631,36 @@ export default function Home() {
               <div className="step-panel">
                 <p className="step-kicker">Comece pelo ritual</p>
                 <h3>O que faremos hoje?</h3>
+                {catalogStatus === "loading" && (
+                  <p className="booking-state" role="status">Atualizando o menu da casa…</p>
+                )}
+                {catalogStatus === "error" && (
+                  <p className="booking-state is-error" role="alert">
+                    A agenda online está temporariamente indisponível. Tente novamente em instantes.
+                  </p>
+                )}
+                {catalogStatus === "ready" && services.length === 0 && (
+                  <p className="booking-state" role="status">
+                    Nenhum serviço está disponível para reserva no momento.
+                  </p>
+                )}
                 <RadioGroup value={serviceId} onValueChange={setServiceId} className="choice-list" aria-label="Escolha o serviço">
-                  {services.slice(0, 3).map((item) => (
+                  {services.map((item) => (
                     <label className="choice-row" key={item.id}>
                       <RadioGroupItem value={item.id} />
                       <span><strong>{item.name}</strong><small>{item.description}</small></span>
-                      <span>{item.duration}</span>
+                      <span>{formatDuration(item.durationMinutes)}</span>
                       <b>{money(item.price)}</b>
                     </label>
                   ))}
                 </RadioGroup>
-                <Button className="booking-next" onClick={() => setStep(2)}>Escolher especialista <span>→</span></Button>
+                <Button
+                  className="booking-next"
+                  onClick={() => setStep(2)}
+                  disabled={catalogStatus !== "ready" || !service}
+                >
+                  Escolher especialista <span>→</span>
+                </Button>
               </div>
             )}
 
@@ -427,61 +672,124 @@ export default function Home() {
                   {barbers.map((item) => (
                     <label className="barber-row" key={item.id}>
                       <RadioGroupItem value={item.id} />
-                      <span className="barber-monogram">{item.initials}</span>
+                      <span className="barber-monogram">{getInitials(item.name)}</span>
                       <span><strong>{item.name}</strong><small>{item.specialty}</small></span>
                     </label>
                   ))}
                 </RadioGroup>
+                {barbers.length === 0 && (
+                  <p className="booking-state" role="status">
+                    Nenhum profissional está disponível para reserva no momento.
+                  </p>
+                )}
                 <div className="booking-nav">
                   <Button variant="ghost" onClick={() => setStep(1)}>← Voltar</Button>
-                  <Button className="booking-next" onClick={() => setStep(3)}>Escolher horário <span>→</span></Button>
+                  <Button className="booking-next" onClick={() => setStep(3)} disabled={!barber}>
+                    Escolher horário <span>→</span>
+                  </Button>
                 </div>
               </div>
             )}
 
             {step === 3 && (
               <div className="step-panel">
-                <p className="step-kicker">Agenda de {barber.name.split(" ")[0]}</p>
+                <p className="step-kicker">Agenda de {barber?.name.split(" ")[0]}</p>
                 <h3>Quando fica melhor?</h3>
                 <div className="date-strip" role="group" aria-label="Escolha a data">
                   {days.map((item) => (
                     <button type="button" className={dayId === item.id ? "selected" : ""} onClick={() => setDayId(item.id)} key={item.id}>{item.label}</button>
                   ))}
                 </div>
-                <div className="time-grid" role="group" aria-label="Escolha o horário">
-                  {times.map((item, index) => (
-                    <button type="button" disabled={index === 2 || index === 5} className={time === item ? "selected" : ""} onClick={() => setTime(item)} key={item}>{item}</button>
-                  ))}
-                </div>
-                <p className="slot-note">Horários riscados já foram reservados.</p>
+                {availabilityStatus === "loading" && (
+                  <div className="slot-loading" role="status" aria-label="Consultando horários">
+                    {Array.from({ length: 8 }, (_, index) => <i key={index} />)}
+                  </div>
+                )}
+                {availabilityStatus === "ready" && slots.length > 0 && (
+                  <div className="time-grid" role="group" aria-label="Escolha o horário">
+                    {slots.map((item) => (
+                      <button type="button" className={time === item ? "selected" : ""} onClick={() => setTime(item)} key={item}>{item}</button>
+                    ))}
+                  </div>
+                )}
+                {availabilityStatus === "ready" && slots.length === 0 && (
+                  <p className="booking-state" role="status">
+                    Não há horários livres nesta data. Escolha outro dia.
+                  </p>
+                )}
+                {availabilityStatus === "error" && (
+                  <p className="booking-state is-error" role="alert">
+                    Não foi possível consultar a agenda. Selecione outra data ou tente novamente.
+                  </p>
+                )}
+                <p className="slot-note">Os horários exibidos consideram a duração do serviço e a agenda do profissional.</p>
                 <div className="booking-nav">
                   <Button variant="ghost" onClick={() => setStep(2)}>← Voltar</Button>
-                  <Button className="booking-next" onClick={confirmBooking}>Revisar reserva <span>→</span></Button>
+                  <Button className="booking-next" onClick={() => setStep(4)} disabled={!time}>
+                    Informar meus dados <span>→</span>
+                  </Button>
                 </div>
               </div>
             )}
 
             {step === 4 && (
-              <div className="step-panel confirmation">
-                <p className="step-kicker">Reserva confirmada</p>
-                <h3>Sua cadeira está pronta.</h3>
-                <p className="confirmation-copy">Guardamos este horário para você. Use o botão abaixo para receber o resumo no WhatsApp.</p>
-                <dl>
-                  <div><dt>Serviço</dt><dd>{service.name}</dd></div>
-                  <div><dt>Especialista</dt><dd>{barber.name}</dd></div>
-                  <div><dt>Quando</dt><dd>{day?.label}, {time}</dd></div>
-                  <div><dt>Total</dt><dd>{money(service.price)}</dd></div>
-                </dl>
-                <button type="button" className="whatsapp-action" onClick={sendMockReminder}>Simular lembrete no WhatsApp <span>↗</span></button>
-                <button type="button" className="restart" onClick={restartBooking}>Fazer outro agendamento</button>
-              </div>
+              confirmed ? (
+                <div className="step-panel confirmation">
+                  <p className="step-kicker">Reserva confirmada</p>
+                  <h3>Sua cadeira está pronta.</h3>
+                  <p className="confirmation-copy">O horário já está na agenda da Imperial. Se quiser, envie o resumo para o WhatsApp da barbearia.</p>
+                  <dl>
+                    <div><dt>Serviço</dt><dd>{service?.name}</dd></div>
+                    <div><dt>Especialista</dt><dd>{barber?.name}</dd></div>
+                    <div><dt>Quando</dt><dd>{day?.label}, {time}</dd></div>
+                    <div><dt>Total</dt><dd>{service ? money(service.price) : "—"}</dd></div>
+                    <div><dt>Reserva</dt><dd>#{appointmentId?.slice(0, 8)}</dd></div>
+                  </dl>
+                  <button type="button" className="whatsapp-action" onClick={openWhatsAppSummary}>Enviar resumo no WhatsApp <span>↗</span></button>
+                  <button type="button" className="restart" onClick={restartBooking}>Fazer outro agendamento</button>
+                </div>
+              ) : (
+                <form className="step-panel booking-form" onSubmit={submitBooking}>
+                  <p className="step-kicker">Último detalhe</p>
+                  <h3>Como falamos com você?</h3>
+                  <div className="booking-form-fields">
+                    <label>
+                      <span>Nome completo</span>
+                      <input value={clientName} onChange={(event) => setClientName(event.target.value)} autoComplete="name" minLength={2} maxLength={120} required />
+                    </label>
+                    <label>
+                      <span>WhatsApp</span>
+                      <input value={phone} onChange={(event) => setPhone(event.target.value)} autoComplete="tel" inputMode="tel" minLength={8} maxLength={40} placeholder="(11) 99999-9999" required />
+                    </label>
+                    <label className="is-wide">
+                      <span>E-mail <small>opcional</small></span>
+                      <input value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" inputMode="email" type="email" maxLength={254} />
+                    </label>
+                    <label className="booking-honeypot" aria-hidden="true">
+                      <span>Site</span>
+                      <input value={website} onChange={(event) => setWebsite(event.target.value)} tabIndex={-1} autoComplete="off" />
+                    </label>
+                  </div>
+                  <div className="booking-review">
+                    <span>{service?.name}</span>
+                    <strong>{barber?.name} · {day?.label} · {time}</strong>
+                  </div>
+                  {bookingError && <p className="booking-error" role="alert">{bookingError}</p>}
+                  <div className="booking-nav">
+                    <Button type="button" variant="ghost" onClick={() => setStep(3)} disabled={isSubmitting}>← Voltar</Button>
+                    <Button type="submit" className="booking-next" disabled={isSubmitting}>
+                      {isSubmitting ? "Confirmando…" : "Confirmar reserva"} <span>→</span>
+                    </Button>
+                  </div>
+                </form>
+              )
             )}
           </div>
-          {!confirmed && (
+          {!confirmed && service && barber && (
             <footer className="booking-summary">
               <span>Seu ritual</span>
               <strong>{service.name}</strong>
-              <span>{barber.name} · {day?.label} · {time}</span>
+              <span>{barber.name} · {day?.label}{time ? ` · ${time}` : ""}</span>
               <b>{money(service.price)}</b>
             </footer>
           )}
@@ -490,19 +798,19 @@ export default function Home() {
 
       <section className="location" id="localizacao" data-scroll="section">
         <div className="location-map" data-scroll="image">
-          <iframe title="Mapa da região dos Jardins, em São Paulo" src="https://www.google.com/maps?q=Jardins%20Sao%20Paulo&output=embed" loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
+          <iframe title="Mapa da região da Imperial Barber" src={`https://www.google.com/maps?q=${encodeURIComponent(settings.address)}&output=embed`} loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
           <span>23°33′43″S / 46°40′11″W</span>
         </div>
         <div className="location-info" data-scroll="title">
           <div className="section-index">05 / Visite</div>
           <p className="kicker">Jardins, São Paulo</p>
           <h2>Um intervalo<br />bem localizado.</h2>
-          <address>Alameda Imperial, 120<br />Jardins — São Paulo <small>(endereço conceitual)</small></address>
-          <a className="directions" href="https://maps.google.com/?q=Jardins+Sao+Paulo" target="_blank" rel="noreferrer">Ver região ↗</a>
+          <address>{settings.address}<small>(endereço conceitual)</small></address>
+          <a className="directions" href={`https://maps.google.com/?q=${encodeURIComponent(settings.address)}`} target="_blank" rel="noreferrer">Ver região ↗</a>
           <div className="hours">
-            <div><span>Terça — Sexta</span><strong>09:00 — 20:00</strong></div>
-            <div><span>Sábado</span><strong>09:00 — 18:00</strong></div>
-            <div><span>Domingo &amp; Segunda</span><strong>Fechado</strong></div>
+            <div><span>Funcionamento</span><strong>{settings.openingHours}</strong></div>
+            <div><span>Telefone</span><strong>{settings.phone}</strong></div>
+            <div><span>WhatsApp</span><strong>{settings.whatsapp}</strong></div>
           </div>
         </div>
       </section>
