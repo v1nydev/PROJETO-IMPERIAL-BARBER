@@ -1,187 +1,108 @@
 # Arquitetura — Imperial Barber
 
-## Escopo desta decisão
+## Visão geral
 
-Este documento estabelece a fundação full-stack da Fase 2 sem implementar
-banco, autenticação, painel administrativo ou agendamento persistente. Essas
-entregas continuam pertencendo às etapas posteriores do roadmap.
-
-## Estado atual preservado
-
-- A rota pública `/` continua em `app/page.tsx` como uma landing page client-side.
-- Serviços, profissionais, datas e horários continuam mockados na landing até a
-  integração pública prevista na Etapa 24.
-- O fluxo de reserva atual altera apenas estado React e não grava dados.
-- Os estilos, animações, imagens, componentes e a ferramenta WebMCP
-  `create_booking` permanecem inalterados.
-- O projeto continua executando Next.js sobre Vinext/Vite e Cloudflare Workers.
-
-## Fronteiras da aplicação
-
-### Apresentação
-
-`app/` contém as rotas e a composição visual. Componentes de rota não devem
-espalhar consultas diretas ao Supabase. A rota `/` é pública. O namespace
-`/admin/*` fica reservado para o painel e será protegido na Etapa 16.
-
-### Domínio
-
-`types/domain.ts` define os conceitos compartilhados pela aplicação:
-
-- users;
-- barbers;
-- clients;
-- services;
-- appointments;
-- barber_availability.
-
-Os tipos de domínio usam nomes em camelCase e não representam, por si só, um
-schema SQL. O mapeamento entre registros do banco e domínio será responsabilidade
-dos adapters de dados.
-
-Valores monetários são representados em centavos no domínio para evitar
-operações com ponto flutuante. Datas e horários permanecem strings ISO até que as
-regras de disponibilidade sejam implementadas.
-
-### Acesso a dados
-
-`lib/data/contracts.ts` é a fronteira entre os casos de uso e a infraestrutura.
-O código da aplicação deve depender desses contratos. Implementações concretas
-para consultas e mutações serão adicionadas somente nas etapas que introduzirem
-as respectivas funcionalidades.
-
-O comportamento esperado é:
+A Imperial Barber é uma aplicação full-stack executada em Cloudflare Workers por meio de Vinext/Vite. O frontend usa React e o App Router do Next.js; autenticação e persistência ficam no Supabase.
 
 ```text
-rota/componente -> caso de uso -> contrato de repositório -> adapter Supabase
+Cliente web
+├── /                         landing e fluxo de agendamento
+├── /api/public/*             catálogo, disponibilidade e reservas
+└── /admin/*                  painel autenticado
+        │
+        ▼
+Aplicação Vinext / Next.js
+├── Server Components
+├── Server Actions
+├── Route Handlers
+└── camada de dados em lib/data
+        │
+        ▼
+Supabase
+├── Auth
+├── PostgreSQL
+├── RLS
+└── RPCs transacionais
 ```
 
-Erros de infraestrutura não devem ser exibidos diretamente ao usuário. Cada
-caso de uso deverá convertê-los em resultados ou erros compreensíveis para sua
-interface.
+## Camada de apresentação
 
-### Supabase
+`app/` contém as rotas, layouts e interfaces:
 
-Supabase será a fonte oficial de autenticação e dados persistentes da Fase 2.
+- `app/page.tsx`: landing pública e jornada de agendamento;
+- `app/api/public/`: endpoints de baixo privilégio consumidos pela landing;
+- `app/admin/login/`: autenticação administrativa;
+- `app/admin/(protected)/`: dashboard, agenda, agendamentos, serviços, profissionais e configurações.
 
-- `lib/supabase/client.ts` cria um singleton para código executado no navegador.
-- `lib/supabase/server.ts` cria um cliente por requisição usando cookies.
-- `lib/supabase/env.ts` centraliza e valida a configuração pública.
-- Nenhum desses módulos é importado pela landing nesta etapa, portanto a página
-  atual continua funcionando mesmo antes de um projeto Supabase ser conectado.
+Componentes visuais reutilizáveis ficam em `components/`. Estilos globais e a identidade pública ficam em `app/globals.css`; o painel possui estilos próprios em `app/admin/admin-auth.css`.
 
-As credenciais públicas identificam o projeto, mas a autorização real dependerá
-de grants e Row Level Security. Uma chave secreta do Supabase nunca poderá ser
-usada em Client Components nem em variáveis com prefixo `NEXT_PUBLIC_`.
+## Dados e domínio
 
-O fluxo administrativo de autenticação, renovação de sessão e associação de
-papéis está detalhado em `docs/AUTHENTICATION.md`.
+`types/domain.ts` concentra os conceitos compartilhados da aplicação. Os módulos de `lib/data/` isolam consultas e transformações do Supabase para que páginas e componentes não dependam do formato bruto das tabelas.
+
+Entidades principais:
+
+- usuários administrativos;
+- profissionais;
+- clientes;
+- serviços;
+- disponibilidade dos profissionais;
+- agendamentos;
+- configurações da barbearia.
+
+Valores monetários são tratados em centavos no domínio quando aplicável. Datas e horários trafegam em formatos ISO e são validados nas fronteiras da aplicação.
+
+## Fluxo público de agendamento
+
+1. `GET /api/public/catalog` carrega serviços, profissionais e dados da barbearia.
+2. `POST /api/public/availability` valida serviço, profissional e data antes de consultar os horários.
+3. `POST /api/public/bookings` valida a entrada com Zod e chama a RPC `create_public_booking`.
+4. O PostgreSQL cria cliente e agendamento dentro da regra transacional e rejeita conflitos de horário.
+
+Os endpoints usam a chave pública do Supabase e dependem de grants, constraints e políticas de RLS. Nenhuma credencial privilegiada é enviada ao navegador.
 
 ## Autenticação e autorização
 
-Supabase Auth será responsável pelas sessões administrativas na Etapa 16. A
-arquitetura separa autenticação de autorização:
+O Supabase Auth mantém a sessão administrativa em cookies. `proxy.ts` renova e valida os claims nas rotas `/admin/*`. A proteção efetiva acontece no servidor:
 
-- autenticação confirma a identidade da sessão;
-- autorização verifica o papel `admin` ou `barber` e o recurso solicitado;
-- RLS e regras server-side formam a proteção efetiva;
-- esconder links ou componentes nunca será considerado autorização.
+- `lib/auth/admin.ts` exige uma sessão válida;
+- o perfil precisa existir em `users`, estar ativo e possuir papel `admin` ou `barber`;
+- Server Actions repetem a verificação antes de mutações;
+- políticas RLS e funções do banco formam a última barreira de autorização.
 
-O helper existente `app/chatgpt-auth.ts` pertence à infraestrutura opcional de
-Sites e não será usado como autenticação administrativa da barbearia. Ele é
-preservado para não alterar capacidades atuais.
+Ocultar elementos da interface nunca é considerado autorização. O fluxo completo está em [AUTHENTICATION.md](AUTHENTICATION.md).
 
-`app/admin/layout.tsx` apenas reserva a fronteira das futuras rotas. Ele não cria
-uma página, não autentica usuários e não expõe um painel incompleto.
+## Banco de dados
 
-## Variáveis de ambiente
+O schema reproduzível está em `supabase/migrations/`, os dados demonstrativos em `supabase/seed.sql` e os testes pgTAP em `supabase/tests/database/`.
 
-Configuração local:
+As migrations definem tabelas, constraints, índices, policies e RPCs. Mudanças estruturais devem ser adicionadas como novas migrations imutáveis e validadas localmente antes de serem aplicadas ao projeto remoto. Consulte [DATABASE.md](DATABASE.md).
 
-1. copiar `.env.example` para `.env.local`;
-2. preencher a URL e a chave publicável obtidas no painel do Supabase;
-3. nunca versionar `.env.local`;
-4. cadastrar os mesmos valores no ambiente de build/hospedagem.
+## Configuração
 
-Variáveis preparadas:
+As duas variáveis usadas pela aplicação são públicas e de baixo privilégio:
 
-| Nome | Exposição | Responsabilidade |
-| --- | --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL` | navegador e servidor | URL pública do projeto |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | navegador e servidor | chave de baixo privilégio sujeita a RLS |
+| Variável | Finalidade |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | URL do projeto Supabase |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | chave publicável sujeita a RLS |
 
-Credenciais server-only serão adicionadas somente quando houver um caso de uso
-concreto. Se forem necessárias, não poderão possuir o prefixo `NEXT_PUBLIC_`.
+`.env.local` é exclusivo do ambiente local e não deve ser versionado. Os mesmos nomes precisam ser configurados no ambiente do Cloudflare. Chaves `service_role`, senhas do banco e outros secrets não pertencem a variáveis `NEXT_PUBLIC_*`.
 
-## D1 e Drizzle existentes
+## Runtime e deploy
 
-O starter contém `db/`, `drizzle/`, `drizzle.config.ts` e dependências Drizzle
-para Cloudflare D1. Atualmente:
+- desenvolvimento: `vinext dev` em `http://localhost:5173`;
+- build: `vinext build`;
+- produção: Cloudflare Workers;
+- configuração do host: `.openai/hosting.json`, `vite.config.ts`, `build/`, `vendor/` e `scripts/`.
 
-- `.openai/hosting.json` declara `d1: null`;
-- `db/schema.ts` não contém tabelas;
-- não há migrations;
-- nenhuma rota ativa chama `getDb()`;
-- `examples/d1/` é demonstração e está excluído do TypeScript.
+O scaffold D1/Drizzle existente em `db/`, `drizzle/` e `examples/d1/` pertence à infraestrutura opcional do starter e não participa do caminho oficial de dados. Ele é mantido isolado para preservar compatibilidade com a hospedagem; o banco da aplicação é PostgreSQL no Supabase.
 
-Esse scaffold permanece intacto nesta etapa para evitar uma remoção arquitetural
-desnecessária. Ele não integra o caminho oficial de dados da Fase 2. Uma remoção
-futura deve ser explícita e ocorrer apenas quando não houver dependência de
-infraestrutura ou hospedagem.
+## Princípios de manutenção
 
-## Banco Supabase
-
-A Etapa 14 materializa a arquitetura em PostgreSQL:
-
-- a configuração reproduzível fica em `supabase/config.toml`;
-- migrations imutáveis ficam em `supabase/migrations/`;
-- testes estruturais e de RLS ficam em `supabase/tests/database/`;
-- o modelo, constraints, índices e políticas estão documentados em
-  `docs/DATABASE.md`.
-
-O banco pode ser preparado localmente sem alterar a landing. A aplicação só
-passará a consultar essas tabelas nas etapas que implementarem os respectivos
-casos de uso. Aplicar migrations a um projeto remoto exige conexão explícita via
-Supabase CLI e nunca deve depender de mudanças manuais no painel.
-
-## Estrutura preparada
-
-```text
-app/
-  page.tsx                    # landing pública preservada
-  admin/
-    layout.tsx                # fronteira reservada, sem página
-lib/
-  data/
-    contracts.ts              # portas da camada de dados
-  supabase/
-    env.ts                    # configuração validada
-    client.ts                 # cliente browser
-    server.ts                 # cliente server por requisição
-types/
-  domain.ts                   # entidades e estados do domínio
-```
-
-## Fora do escopo da Etapa 13
-
-- criar projeto, tabelas, constraints, índices ou policies no Supabase;
-- gerar ou aplicar migrations;
-- criar dados iniciais;
-- implementar login, logout ou proteção de sessão;
-- criar páginas do painel;
-- criar CRUD de serviços, profissionais ou agendamentos;
-- substituir os mocks da landing;
-- implementar cálculo de disponibilidade;
-- alterar D1/Drizzle;
-- realizar deploy.
-
-## Próximas decisões
-
-As etapas seguintes deverão estender esta fundação incrementalmente:
-
-- Etapa 14: schema Postgres, migrations, constraints e RLS;
-- Etapa 15: seed demonstrativo;
-- Etapa 16: autenticação e proteção de `/admin/*`;
-- Etapa 24: conexão da landing aos dados e horários reais.
-
-Essas decisões não são implementadas antecipadamente neste documento.
+- consultas de negócio devem permanecer na camada de dados;
+- mutações administrativas precisam validar autenticação no servidor;
+- regras críticas e concorrentes devem ser reforçadas no banco;
+- erros internos não devem ser exibidos diretamente ao usuário;
+- novas variáveis e bindings devem ser documentados;
+- TypeScript, lint, build e testes de banco devem acompanhar alterações relevantes.
