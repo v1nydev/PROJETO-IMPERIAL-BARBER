@@ -528,8 +528,8 @@
 }
 
 .admin-sidebar-trigger {
-  width: 2.2rem;
-  height: 2.2rem;
+  width: 2.75rem;
+  height: 2.75rem;
   border-radius: 0;
   color: #5f574e;
 }
@@ -970,6 +970,7 @@
 }
 
 .admin-dashboard-section-heading > a {
+  min-height: 2.75rem;
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -2337,6 +2338,9 @@
 }
 
 .admin-appointment-details dd a {
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
   border-bottom: 1px solid #b4a899;
 }
 

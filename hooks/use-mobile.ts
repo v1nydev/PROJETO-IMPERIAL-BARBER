@@ -1,6 +1,8 @@
 import * as React from "react"
 
-const MOBILE_BREAKPOINT = 768
+// Keep the administrative sidebar in its sheet variant on portrait tablets.
+// The expanded desktop rail leaves too little room for management forms at 768px.
+const MOBILE_BREAKPOINT = 900
 
 export function useIsMobile() {
   const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
